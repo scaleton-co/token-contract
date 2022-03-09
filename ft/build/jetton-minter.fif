@@ -1,12 +1,13 @@
 "Asm.fif" include
-// automatically generated from `../nft/stdlib.fc` `op_codes.fc` `jetton_wallet_utils.fc` `wrapped_ton.fc` 
+// automatically generated from `../nft/stdlib.fc` `op_codes.fc` `jetton_wallet_utils.fc` `minter.fc` 
 PROGRAM{
   DECLPROC pack_wallet_data
   DECLPROC calculate_token_state_init
   DECLPROC calc_address
   DECLPROC calc_user_wallet
-  DECLPROC mint_wtons
-  DECLPROC release_tons
+  DECLPROC load_data
+  DECLPROC save_data
+  DECLPROC mint_tokens
   DECLPROC recv_internal
   106029 DECLMETHOD get_jetton_data
   pack_wallet_data PROC:<{
@@ -53,7 +54,27 @@ PROGRAM{
     calculate_token_state_init INLINECALLDICT	//  _3
     calc_address INLINECALLDICT	//  _4
   }>
-  mint_wtons PROC:<{
+  load_data PROC:<{
+    // 
+    c4 PUSH	//  _1
+    CTOS	//  ds
+    LDVARUINT16	//  _3 ds
+    LDMSGADDR	//  _3 _5 ds
+    LDREF	//  _3 _5 _14 _13
+    DROP	//  _3 _5 _7
+  }>
+  save_data PROC:<{
+    //  supply admin content
+    NEWC	//  supply admin content _3
+    s0 s3 XCHG2	//  content admin _3 supply
+    STGRAMS	//  content admin _4
+    SWAP	//  content _4 admin
+    STSLICER	//  content _5
+    STREF	//  _6
+    ENDC	//  _7
+    c4 POP
+  }>
+  mint_tokens PROC:<{
     //  to amount
     MYADDR	//  to amount _3
     ft_code PUSHREF	//  to amount _3 _4
@@ -83,82 +104,68 @@ PROGRAM{
     0 PUSHINT	//  _45 _46=0
     SENDRAWMSG
   }>
-  release_tons PROC:<{
-    //  in_msg sender
-    SWAP	//  sender in_msg
-    64 LDU	//  sender query_id in_msg
-    LDVARUINT16	//  sender query_id amount in_msg
-    LDMSGADDR	//  sender query_id amount _53 _52
-    DROP	//  sender query_id amount from
-    MYADDR	//  sender query_id amount from _13
-    ft_code PUSHREF	//  sender query_id amount from _13 _14
-    s2 PUSH
-    -ROT	//  sender query_id amount from from _13 _14
-    calc_user_wallet INLINECALLDICT	//  sender query_id amount from _15
-    s0 s4 XCHG2	//  from query_id amount _15 sender
-    SDEQ	//  from query_id amount _16
-    707 THROWIFNOT
-    20 PUSHINT	//  from query_id amount _19=20
-    0 PUSHINT	//  from query_id amount _19=20 _20=0
-    16 PUSHINT	//  from query_id amount _19=20 _20=0 _21=16
-    NEWC	//  from query_id amount _19=20 _20=0 _21=16 _22
-    6 STU	//  from query_id amount _19=20 _20=0 _24
-    s0 s5 XCHG2	//  _20=0 query_id amount _19=20 _24 from
-    STSLICER	//  _20=0 query_id amount _19=20 _25
-    ROT	//  _20=0 query_id _19=20 _25 amount
-    STVARUINT16	//  _20=0 query_id _19=20 _26
-    s1 s3 XCHG	//  _19=20 query_id _20=0 _26
-    107 STU	//  _19=20 query_id _40
-    s1 s2 XCHG	//  query_id _19=20 _40
-    32 STU	//  query_id _42
-    64 STU	//  msg
-    ENDC	//  _45
-    64 PUSHINT	//  _45 _46=64
-    SENDRAWMSG
-  }>
   recv_internal PROC:<{
     //  msg_value in_msg_cell in_msg
-    SWAP	//  msg_value in_msg in_msg_cell
-    CTOS	//  msg_value in_msg cs
-    4 LDU	//  msg_value in_msg flags cs
+    s2 POP	//  in_msg in_msg_cell
+    CTOS	//  in_msg cs
+    4 LDU	//  in_msg flags cs
     SWAP
-    1 PUSHINT	//  msg_value in_msg cs flags _9=1
-    AND	//  msg_value in_msg cs _10
-    IFJMP:<{	//  msg_value in_msg cs
-      3 BLKDROP	// 
-    }>	//  msg_value in_msg cs
-    LDMSGADDR	//  msg_value in_msg _31 _30
-    DROP	//  msg_value in_msg sender
-    SWAP	//  msg_value sender in_msg
-    32 LDU	//  msg_value sender op in_msg
-    OVER	//  msg_value sender op in_msg op
-    19 EQINT	//  msg_value sender op in_msg _19
-    IFJMP:<{	//  msg_value sender op in_msg
-      2DROP	//  msg_value sender
-      SWAP
-      50000000 PUSHINT	//  sender msg_value _20=50000000
-      SUB	//  sender msg_value
-      mint_wtons CALLDICT
-    }>	//  msg_value sender op in_msg
-    s3 POP	//  in_msg sender op
-    18 EQINT	//  in_msg sender _24
-    IFJMP:<{	//  in_msg sender
-      release_tons CALLDICT
-    }>	//  in_msg sender
-    2DROP	// 
+    1 PUSHINT	//  in_msg cs flags _9=1
+    AND	//  in_msg cs _10
+    IFJMP:<{	//  in_msg cs
+      2DROP	// 
+    }>	//  in_msg cs
+    LDMSGADDR	//  in_msg _65 _64
+    DROP	//  in_msg sender
+    SWAP	//  sender in_msg
+    32 LDU	//  sender op in_msg
+    load_data INLINECALLDICT	//  sender op in_msg supply admin content
+    s4 PUSH	//  sender op in_msg supply admin content op
+    21 EQINT	//  sender op in_msg supply admin content _23
+    IF:<{	//  sender op in_msg supply admin content
+      s5 s1 PUSH2	//  sender op in_msg supply admin content sender admin
+      SDEQ	//  sender op in_msg supply admin content _25
+      73 THROWIFNOT
+      s0 s3 XCHG	//  sender op content supply admin in_msg
+      LDVARUINT16	//  sender op content supply admin amount in_msg
+      LDMSGADDR	//  sender op content supply admin amount destination in_msg
+      s1 s2 XCPU	//  sender op content supply admin amount in_msg destination amount
+      mint_tokens CALLDICT
+      s3 s3 XCHG2	//  sender op content in_msg admin supply amount
+      ADD	//  sender op content in_msg admin _34
+      s0 s1 s3 XCHG3	//  sender op in_msg _34 admin content
+      save_data INLINECALLDICT
+    }>ELSE<{
+      3 BLKDROP	//  sender op in_msg
+    }>
+    SWAP	//  sender in_msg op
+    18 EQINT	//  sender in_msg _37
+    IF:<{	//  sender in_msg
+      64 LDU	//  sender _76 _75
+      NIP	//  sender in_msg
+      LDVARUINT16	//  sender amount in_msg
+      LDMSGADDR	//  sender amount _80 _79
+      DROP	//  sender amount from
+      MYADDR	//  sender amount from _49
+      ft_code PUSHREF	//  sender amount from _49 _50
+      calc_user_wallet INLINECALLDICT	//  sender amount _51
+      ROT	//  amount _51 sender
+      SDEQ	//  amount _52
+      707 THROWIFNOT
+      load_data INLINECALLDICT	//  amount supply admin content
+      s2 s3 XCHG2	//  content admin supply amount
+      SUB	//  content admin _58
+      s0 s2 XCHG	//  _58 admin content
+      save_data INLINECALLDICT
+    }>ELSE<{
+      2DROP	// 
+    }>
     1111 THROW
   }>
   get_jetton_data PROC:<{
     // 
-    BALANCE	//  _0
-    FIRST	//  _1
-    -1 PUSHINT	//  _1 _2=-1
-    0 PUSHINT	//  _1 _2=-1 _3=0
-    NEWC	//  _1 _2=-1 _3=0 _4
-    2 STU	//  _1 _2=-1 _6
-    ENDC	//  _1 _2=-1 _7
-    CTOS	//  _1 _2=-1 _8
-    NEWC	//  _1 _2=-1 _8 _9
-    ENDC	//  _1 _2=-1 _8 _10
+    load_data INLINECALLDICT	//  supply admin content
+    -1 PUSHINT	//  supply admin content _4=-1
+    -ROT	//  supply _4=-1 admin content
   }>
 }END>c

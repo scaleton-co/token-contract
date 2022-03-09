@@ -56,3 +56,10 @@ cell token_code() asm "ft_code PUSHREF";
 
   throw(1111);
 }
+
+(int, int, slice, cell) get_jetton_data() method_id {
+  return (pair_first(get_balance()), ;; rough but close to reality
+          -1,
+          begin_cell().store_uint(0,2).end_cell().begin_parse(),
+          begin_cell().end_cell());
+}
