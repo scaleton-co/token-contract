@@ -5,6 +5,7 @@ PROGRAM{
   DECLPROC calculate_token_state_init
   DECLPROC calc_address
   DECLPROC calc_user_wallet
+  DECLPROC force_chain
   DECLPROC load_data
   DECLPROC save_data
   DECLPROC send_tokens
@@ -57,6 +58,13 @@ PROGRAM{
     calculate_token_state_init INLINECALLDICT	//  _3
     calc_address INLINECALLDICT	//  _4
   }>
+  force_chain PROC:<{
+    //  adr
+    REWRITESTDADDR	//  _8 _9
+    DROP	//  wc
+    0 EQINT	//  _6
+    333 THROWIFNOT
+  }>
   load_data PROC:<{
     // 
     c4 PUSH	//  _1
@@ -73,72 +81,77 @@ PROGRAM{
     c4 POP
   }>
   send_tokens PROC:<{
-    //  in_msg sender msg_value
-    s0 s2 XCHG	//  msg_value sender in_msg
-    64 LDU	//  msg_value sender query_id in_msg
-    LDVARUINT16	//  msg_value sender query_id token_amount in_msg
-    LDMSGADDR	//  msg_value sender query_id token_amount to in_msg
-    load_data CALLDICT	//  msg_value sender query_id token_amount to in_msg balance owner jetton_master token_wallet_code
-    s3 s6 XCPU	//  msg_value sender query_id token_amount to in_msg token_wallet_code owner jetton_master balance token_amount
-    SUB	//  msg_value sender query_id token_amount to in_msg token_wallet_code owner jetton_master balance
-    s2 s8 PUXC	//  msg_value balance query_id token_amount to in_msg token_wallet_code owner jetton_master owner sender
-    SDEQ	//  msg_value balance query_id token_amount to in_msg token_wallet_code owner jetton_master _20
+    //  in_msg sender msg_value fwd_fee
+    s0 s3 XCHG	//  fwd_fee sender msg_value in_msg
+    64 LDU	//  fwd_fee sender msg_value query_id in_msg
+    LDVARUINT16	//  fwd_fee sender msg_value query_id token_amount in_msg
+    LDMSGADDR	//  fwd_fee sender msg_value query_id token_amount to in_msg
+    OVER	//  fwd_fee sender msg_value query_id token_amount to in_msg to
+    force_chain CALLDICT
+    load_data CALLDICT	//  fwd_fee sender msg_value query_id token_amount to in_msg balance owner jetton_master token_wallet_code
+    s3 s6 XCPU	//  fwd_fee sender msg_value query_id token_amount to in_msg token_wallet_code owner jetton_master balance token_amount
+    SUB	//  fwd_fee sender msg_value query_id token_amount to in_msg token_wallet_code owner jetton_master balance
+    s2 s9 PUXC	//  fwd_fee balance msg_value query_id token_amount to in_msg token_wallet_code owner jetton_master owner sender
+    SDEQ	//  fwd_fee balance msg_value query_id token_amount to in_msg token_wallet_code owner jetton_master _22
     705 THROWIFNOT
-    s7 PUSH	//  msg_value balance query_id token_amount to in_msg token_wallet_code owner jetton_master balance
-    -1 GTINT	//  msg_value balance query_id token_amount to in_msg token_wallet_code owner jetton_master _24
+    s8 PUSH	//  fwd_fee balance msg_value query_id token_amount to in_msg token_wallet_code owner jetton_master balance
+    -1 GTINT	//  fwd_fee balance msg_value query_id token_amount to in_msg token_wallet_code owner jetton_master _26
     706 THROWIFNOT
-    s4 s4 s2 XCPU2	//  msg_value balance query_id token_amount jetton_master in_msg token_wallet_code owner to jetton_master token_wallet_code
-    calculate_token_state_init INLINECALLDICT	//  msg_value balance query_id token_amount jetton_master in_msg token_wallet_code owner state_init
-    DUP	//  msg_value balance query_id token_amount jetton_master in_msg token_wallet_code owner state_init state_init
-    calc_address INLINECALLDICT	//  msg_value balance query_id token_amount jetton_master in_msg token_wallet_code owner state_init to_wallet
-    30000000 PUSHINT	//  msg_value balance query_id token_amount jetton_master in_msg token_wallet_code owner state_init to_wallet _30=30000000
-    0 PUSHINT	//  msg_value balance query_id token_amount jetton_master in_msg token_wallet_code owner state_init to_wallet _30=30000000 _31=0
-    RAWRESERVE
-    s0 s4 XCHG	//  msg_value balance query_id token_amount jetton_master to_wallet token_wallet_code owner state_init in_msg
-    LDMSGADDR	//  msg_value balance query_id token_amount jetton_master to_wallet token_wallet_code owner state_init response in_msg
-    LDDICT	//  msg_value balance query_id token_amount jetton_master to_wallet token_wallet_code owner state_init response _109 _108
-    NIP	//  msg_value balance query_id token_amount jetton_master to_wallet token_wallet_code owner state_init response in_msg
-    LDVARUINT16	//  msg_value balance query_id token_amount jetton_master to_wallet token_wallet_code owner state_init response forward_ton_amount either_forward_payload
-    OVER
-    10000000 PUSHINT	//  msg_value balance query_id token_amount jetton_master to_wallet token_wallet_code owner state_init response forward_ton_amount either_forward_payload forward_ton_amount _44=10000000
-    ADD	//  msg_value balance query_id token_amount jetton_master to_wallet token_wallet_code owner state_init response forward_ton_amount either_forward_payload _45
-    s1 s12 XCHG	//  either_forward_payload balance query_id token_amount jetton_master to_wallet token_wallet_code owner state_init response forward_ton_amount msg_value _45
-    GREATER	//  either_forward_payload balance query_id token_amount jetton_master to_wallet token_wallet_code owner state_init response forward_ton_amount _46
+    s4 s4 s2 XCPU2	//  fwd_fee balance msg_value query_id token_amount jetton_master in_msg token_wallet_code owner to jetton_master token_wallet_code
+    calculate_token_state_init INLINECALLDICT	//  fwd_fee balance msg_value query_id token_amount jetton_master in_msg token_wallet_code owner state_init
+    DUP	//  fwd_fee balance msg_value query_id token_amount jetton_master in_msg token_wallet_code owner state_init state_init
+    calc_address INLINECALLDICT	//  fwd_fee balance msg_value query_id token_amount jetton_master in_msg token_wallet_code owner state_init to_wallet
+    s0 s4 XCHG	//  fwd_fee balance msg_value query_id token_amount jetton_master to_wallet token_wallet_code owner state_init in_msg
+    LDMSGADDR	//  fwd_fee balance msg_value query_id token_amount jetton_master to_wallet token_wallet_code owner state_init response in_msg
+    OVER	//  fwd_fee balance msg_value query_id token_amount jetton_master to_wallet token_wallet_code owner state_init response in_msg response
+    force_chain CALLDICT
+    LDDICT	//  fwd_fee balance msg_value query_id token_amount jetton_master to_wallet token_wallet_code owner state_init response _116 _115
+    NIP	//  fwd_fee balance msg_value query_id token_amount jetton_master to_wallet token_wallet_code owner state_init response in_msg
+    LDVARUINT16	//  fwd_fee balance msg_value query_id token_amount jetton_master to_wallet token_wallet_code owner state_init response forward_ton_amount either_forward_payload
+    7 PUSHINT	//  fwd_fee balance msg_value query_id token_amount jetton_master to_wallet token_wallet_code owner state_init response forward_ton_amount either_forward_payload _48
+    24 PUSHINT	//  fwd_fee balance msg_value query_id token_amount jetton_master to_wallet token_wallet_code owner state_init response forward_ton_amount either_forward_payload _48 _49=24
+    NEWC	//  fwd_fee balance msg_value query_id token_amount jetton_master to_wallet token_wallet_code owner state_init response forward_ton_amount either_forward_payload _48 _49=24 _50
+    6 STU	//  fwd_fee balance msg_value query_id token_amount jetton_master to_wallet token_wallet_code owner state_init response forward_ton_amount either_forward_payload _48 _52
+    s0 s8 XCHG2	//  fwd_fee balance msg_value query_id token_amount jetton_master _48 token_wallet_code owner state_init response forward_ton_amount either_forward_payload _52 to_wallet
+    STSLICER	//  fwd_fee balance msg_value query_id token_amount jetton_master _48 token_wallet_code owner state_init response forward_ton_amount either_forward_payload _53
+    0 PUSHINT	//  fwd_fee balance msg_value query_id token_amount jetton_master _48 token_wallet_code owner state_init response forward_ton_amount either_forward_payload _53 _54=0
+    STVARUINT16	//  fwd_fee balance msg_value query_id token_amount jetton_master _48 token_wallet_code owner state_init response forward_ton_amount either_forward_payload _55
+    s1 s7 XCHG	//  fwd_fee balance msg_value query_id token_amount jetton_master either_forward_payload token_wallet_code owner state_init response forward_ton_amount _48 _55
+    108 STU	//  fwd_fee balance msg_value query_id token_amount jetton_master either_forward_payload token_wallet_code owner state_init response forward_ton_amount _71
+    s1 s3 XCHG	//  fwd_fee balance msg_value query_id token_amount jetton_master either_forward_payload token_wallet_code owner forward_ton_amount response state_init _71
+    STREF	//  fwd_fee balance msg_value query_id token_amount jetton_master either_forward_payload token_wallet_code owner forward_ton_amount response msg
+    13 PUSHINT	//  fwd_fee balance msg_value query_id token_amount jetton_master either_forward_payload token_wallet_code owner forward_ton_amount response msg _74=13
+    NEWC	//  fwd_fee balance msg_value query_id token_amount jetton_master either_forward_payload token_wallet_code owner forward_ton_amount response msg _74=13 _75
+    32 STU	//  fwd_fee balance msg_value query_id token_amount jetton_master either_forward_payload token_wallet_code owner forward_ton_amount response msg _77
+    s1 s9 XCHG	//  fwd_fee balance msg_value msg token_amount jetton_master either_forward_payload token_wallet_code owner forward_ton_amount response query_id _77
+    64 STU	//  fwd_fee balance msg_value msg token_amount jetton_master either_forward_payload token_wallet_code owner forward_ton_amount response _79
+    s0 s7 XCHG2	//  fwd_fee balance msg_value msg response jetton_master either_forward_payload token_wallet_code owner forward_ton_amount _79 token_amount
+    STVARUINT16	//  fwd_fee balance msg_value msg response jetton_master either_forward_payload token_wallet_code owner forward_ton_amount _80
+    s2 PUSH	//  fwd_fee balance msg_value msg response jetton_master either_forward_payload token_wallet_code owner forward_ton_amount _80 owner
+    STSLICER	//  fwd_fee balance msg_value msg response jetton_master either_forward_payload token_wallet_code owner forward_ton_amount _81
+    s0 s6 XCHG2	//  fwd_fee balance msg_value msg forward_ton_amount jetton_master either_forward_payload token_wallet_code owner _81 response
+    STSLICER	//  fwd_fee balance msg_value msg forward_ton_amount jetton_master either_forward_payload token_wallet_code owner _82
+    s5 PUSH	//  fwd_fee balance msg_value msg forward_ton_amount jetton_master either_forward_payload token_wallet_code owner _82 forward_ton_amount
+    STVARUINT16	//  fwd_fee balance msg_value msg forward_ton_amount jetton_master either_forward_payload token_wallet_code owner _83
+    s0 s3 XCHG2	//  fwd_fee balance msg_value msg forward_ton_amount jetton_master owner token_wallet_code _83 either_forward_payload
+    STSLICER	//  fwd_fee balance msg_value msg forward_ton_amount jetton_master owner token_wallet_code _84
+    ENDC	//  fwd_fee balance msg_value msg forward_ton_amount jetton_master owner token_wallet_code msg_body
+    s0 s5 XCHG2	//  fwd_fee balance msg_value token_wallet_code forward_ton_amount jetton_master owner msg_body msg
+    STREF	//  fwd_fee balance msg_value token_wallet_code forward_ton_amount jetton_master owner msg
+    s0 s7 XCHG	//  msg balance msg_value token_wallet_code forward_ton_amount jetton_master owner fwd_fee
+    1 LSHIFT#	//  msg balance msg_value token_wallet_code forward_ton_amount jetton_master owner _89
+    s1 s3 XCHG	//  msg balance msg_value token_wallet_code owner jetton_master forward_ton_amount _89
+    ADD	//  msg balance msg_value token_wallet_code owner jetton_master _90
+    30000000 PUSHINT	//  msg balance msg_value token_wallet_code owner jetton_master _90 _95
+    ADD	//  msg balance msg_value token_wallet_code owner jetton_master _96
+    s1 s4 XCHG	//  msg balance jetton_master token_wallet_code owner msg_value _96
+    GREATER	//  msg balance jetton_master token_wallet_code owner _97
     709 THROWIFNOT
-    7 PUSHINT	//  either_forward_payload balance query_id token_amount jetton_master to_wallet token_wallet_code owner state_init response forward_ton_amount _53
-    24 PUSHINT	//  either_forward_payload balance query_id token_amount jetton_master to_wallet token_wallet_code owner state_init response forward_ton_amount _53 _54=24
-    NEWC	//  either_forward_payload balance query_id token_amount jetton_master to_wallet token_wallet_code owner state_init response forward_ton_amount _53 _54=24 _55
-    6 STU	//  either_forward_payload balance query_id token_amount jetton_master to_wallet token_wallet_code owner state_init response forward_ton_amount _53 _57
-    s0 s7 XCHG2	//  either_forward_payload balance query_id token_amount jetton_master _53 token_wallet_code owner state_init response forward_ton_amount _57 to_wallet
-    STSLICER	//  either_forward_payload balance query_id token_amount jetton_master _53 token_wallet_code owner state_init response forward_ton_amount _58
-    0 PUSHINT	//  either_forward_payload balance query_id token_amount jetton_master _53 token_wallet_code owner state_init response forward_ton_amount _58 _59=0
-    STVARUINT16	//  either_forward_payload balance query_id token_amount jetton_master _53 token_wallet_code owner state_init response forward_ton_amount _60
-    s1 s6 XCHG	//  either_forward_payload balance query_id token_amount jetton_master forward_ton_amount token_wallet_code owner state_init response _53 _60
-    108 STU	//  either_forward_payload balance query_id token_amount jetton_master forward_ton_amount token_wallet_code owner state_init response _76
-    s1 s2 XCHG	//  either_forward_payload balance query_id token_amount jetton_master forward_ton_amount token_wallet_code owner response state_init _76
-    STREF	//  either_forward_payload balance query_id token_amount jetton_master forward_ton_amount token_wallet_code owner response msg
-    13 PUSHINT	//  either_forward_payload balance query_id token_amount jetton_master forward_ton_amount token_wallet_code owner response msg _79=13
-    NEWC	//  either_forward_payload balance query_id token_amount jetton_master forward_ton_amount token_wallet_code owner response msg _79=13 _80
-    32 STU	//  either_forward_payload balance query_id token_amount jetton_master forward_ton_amount token_wallet_code owner response msg _82
-    s1 s8 XCHG	//  either_forward_payload balance msg token_amount jetton_master forward_ton_amount token_wallet_code owner response query_id _82
-    64 STU	//  either_forward_payload balance msg token_amount jetton_master forward_ton_amount token_wallet_code owner response _84
-    s0 s6 XCHG2	//  either_forward_payload balance msg response jetton_master forward_ton_amount token_wallet_code owner _84 token_amount
-    STVARUINT16	//  either_forward_payload balance msg response jetton_master forward_ton_amount token_wallet_code owner _85
-    OVER	//  either_forward_payload balance msg response jetton_master forward_ton_amount token_wallet_code owner _85 owner
-    STSLICER	//  either_forward_payload balance msg response jetton_master forward_ton_amount token_wallet_code owner _86
-    s0 s5 XCHG2	//  either_forward_payload balance msg owner jetton_master forward_ton_amount token_wallet_code _86 response
-    STSLICER	//  either_forward_payload balance msg owner jetton_master forward_ton_amount token_wallet_code _87
-    ROT	//  either_forward_payload balance msg owner jetton_master token_wallet_code _87 forward_ton_amount
-    STVARUINT16	//  either_forward_payload balance msg owner jetton_master token_wallet_code _88
-    s0 s6 XCHG2	//  token_wallet_code balance msg owner jetton_master _88 either_forward_payload
-    STSLICER	//  token_wallet_code balance msg owner jetton_master msg_body
-    ENDC	//  token_wallet_code balance msg owner jetton_master _90
-    s0 s3 XCHG2	//  token_wallet_code balance jetton_master owner _90 msg
-    STREF	//  token_wallet_code balance jetton_master owner msg
-    ENDC	//  token_wallet_code balance jetton_master owner _92
-    7 PUSHPOW2	//  token_wallet_code balance jetton_master owner _92 _93=128
+    s0 s4 XCHG	//  owner balance jetton_master token_wallet_code msg
+    ENDC	//  owner balance jetton_master token_wallet_code _99
+    64 PUSHINT	//  owner balance jetton_master token_wallet_code _99 _100=64
     SENDRAWMSG
-    s0 s1 s3 XCHG3	//  balance owner jetton_master token_wallet_code
+    s2 s3 XCHG	//  balance owner jetton_master token_wallet_code
     save_data CALLDICT
   }>
   receive_tokens PROC:<{
@@ -158,131 +171,110 @@ PROGRAM{
     SDEQ	//  token_wallet_code in_msg balance owner jetton_master query_id token_amount from response _23
     707 THROWIFNOT
     s0 s7 XCHG	//  token_wallet_code response balance owner jetton_master query_id token_amount from in_msg
-    LDVARUINT16	//  token_wallet_code response balance owner jetton_master query_id token_amount from forward_ton_amount in_msg
-    BALANCE	//  token_wallet_code response balance owner jetton_master query_id token_amount from forward_ton_amount in_msg _29
-    FIRST	//  token_wallet_code response balance owner jetton_master query_id token_amount from forward_ton_amount in_msg _30
-    s2 PUSH	//  token_wallet_code response balance owner jetton_master query_id token_amount from forward_ton_amount in_msg _30 forward_ton_amount
-    SUB	//  token_wallet_code response balance owner jetton_master query_id token_amount from forward_ton_amount in_msg _31
-    10000000 PUSHINT	//  token_wallet_code response balance owner jetton_master query_id token_amount from forward_ton_amount in_msg _31 _32=10000000
-    SUB	//  token_wallet_code response balance owner jetton_master query_id token_amount from forward_ton_amount in_msg _33
-    30000000 PUSHINT	//  token_wallet_code response balance owner jetton_master query_id token_amount from forward_ton_amount in_msg _33 _34=30000000
-    GREATER	//  token_wallet_code response balance owner jetton_master query_id token_amount from forward_ton_amount in_msg _35
-    708 THROWIFNOT
-    30000000 PUSHINT	//  token_wallet_code response balance owner jetton_master query_id token_amount from forward_ton_amount in_msg _37=30000000
-    2 PUSHINT	//  token_wallet_code response balance owner jetton_master query_id token_amount from forward_ton_amount in_msg _37=30000000 _38=2
-    RAWRESERVE	//  token_wallet_code response balance owner jetton_master query_id token_amount from forward_ton_amount either_forward_payload
+    LDVARUINT16	//  token_wallet_code response balance owner jetton_master query_id token_amount from forward_ton_amount either_forward_payload
     OVER	//  token_wallet_code response balance owner jetton_master query_id token_amount from forward_ton_amount either_forward_payload forward_ton_amount
     IF:<{	//  token_wallet_code response balance owner jetton_master query_id token_amount from forward_ton_amount either_forward_payload
-      1 PUSHINT	//  token_wallet_code response balance owner jetton_master query_id token_amount from forward_ton_amount either_forward_payload _42=1
-      24 PUSHINT	//  token_wallet_code response balance owner jetton_master query_id token_amount from forward_ton_amount either_forward_payload _42=1 _43=24
-      NEWC	//  token_wallet_code response balance owner jetton_master query_id token_amount from forward_ton_amount either_forward_payload _42=1 _43=24 _44
-      6 STU	//  token_wallet_code response balance owner jetton_master query_id token_amount from forward_ton_amount either_forward_payload _42=1 _46
-      s8 PUSH	//  token_wallet_code response balance owner jetton_master query_id token_amount from forward_ton_amount either_forward_payload _42=1 _46 owner
-      STSLICER	//  token_wallet_code response balance owner jetton_master query_id token_amount from forward_ton_amount either_forward_payload _42=1 _47
-      s0 s3 XCHG2	//  token_wallet_code response balance owner jetton_master query_id token_amount from _42=1 either_forward_payload _47 forward_ton_amount
-      STVARUINT16	//  token_wallet_code response balance owner jetton_master query_id token_amount from _42=1 either_forward_payload _48
-      s1 s2 XCHG	//  token_wallet_code response balance owner jetton_master query_id token_amount from either_forward_payload _42=1 _48
+      1 PUSHINT	//  token_wallet_code response balance owner jetton_master query_id token_amount from forward_ton_amount either_forward_payload _30=1
+      24 PUSHINT	//  token_wallet_code response balance owner jetton_master query_id token_amount from forward_ton_amount either_forward_payload _30=1 _31=24
+      NEWC	//  token_wallet_code response balance owner jetton_master query_id token_amount from forward_ton_amount either_forward_payload _30=1 _31=24 _32
+      6 STU	//  token_wallet_code response balance owner jetton_master query_id token_amount from forward_ton_amount either_forward_payload _30=1 _34
+      s8 PUSH	//  token_wallet_code response balance owner jetton_master query_id token_amount from forward_ton_amount either_forward_payload _30=1 _34 owner
+      STSLICER	//  token_wallet_code response balance owner jetton_master query_id token_amount from forward_ton_amount either_forward_payload _30=1 _35
+      s0 s3 XCHG2	//  token_wallet_code response balance owner jetton_master query_id token_amount from _30=1 either_forward_payload _35 forward_ton_amount
+      STVARUINT16	//  token_wallet_code response balance owner jetton_master query_id token_amount from _30=1 either_forward_payload _36
+      s1 s2 XCHG	//  token_wallet_code response balance owner jetton_master query_id token_amount from either_forward_payload _30=1 _36
       107 STU	//  token_wallet_code response balance owner jetton_master query_id token_amount from either_forward_payload msg
-      12 PUSHINT	//  token_wallet_code response balance owner jetton_master query_id token_amount from either_forward_payload msg _64=12
-      NEWC	//  token_wallet_code response balance owner jetton_master query_id token_amount from either_forward_payload msg _64=12 _65
-      32 STU	//  token_wallet_code response balance owner jetton_master query_id token_amount from either_forward_payload msg _67
-      s5 s(-1) PUXC	//  token_wallet_code response balance owner jetton_master query_id token_amount from either_forward_payload msg query_id _67
-      64 STU	//  token_wallet_code response balance owner jetton_master query_id token_amount from either_forward_payload msg _69
-      s0 s4 XCHG2	//  token_wallet_code response balance owner jetton_master query_id msg from either_forward_payload _69 token_amount
-      STVARUINT16	//  token_wallet_code response balance owner jetton_master query_id msg from either_forward_payload _70
-      s5 PUSH	//  token_wallet_code response balance owner jetton_master query_id msg from either_forward_payload _70 jetton_master
-      STSLICER	//  token_wallet_code response balance owner jetton_master query_id msg from either_forward_payload _71
-      ROT	//  token_wallet_code response balance owner jetton_master query_id msg either_forward_payload _71 from
-      STSLICER	//  token_wallet_code response balance owner jetton_master query_id msg either_forward_payload _72
-      SWAP	//  token_wallet_code response balance owner jetton_master query_id msg _72 either_forward_payload
-      STSLICER	//  token_wallet_code response balance owner jetton_master query_id msg msg_body
-      ENDC	//  token_wallet_code response balance owner jetton_master query_id msg _74
-      SWAP	//  token_wallet_code response balance owner jetton_master query_id _74 msg
+      12 PUSHINT	//  token_wallet_code response balance owner jetton_master query_id token_amount from either_forward_payload msg _52=12
+      NEWC	//  token_wallet_code response balance owner jetton_master query_id token_amount from either_forward_payload msg _52=12 _53
+      32 STU	//  token_wallet_code response balance owner jetton_master query_id token_amount from either_forward_payload msg _55
+      s5 s(-1) PUXC	//  token_wallet_code response balance owner jetton_master query_id token_amount from either_forward_payload msg query_id _55
+      64 STU	//  token_wallet_code response balance owner jetton_master query_id token_amount from either_forward_payload msg _57
+      s0 s4 XCHG2	//  token_wallet_code response balance owner jetton_master query_id msg from either_forward_payload _57 token_amount
+      STVARUINT16	//  token_wallet_code response balance owner jetton_master query_id msg from either_forward_payload _58
+      s5 PUSH	//  token_wallet_code response balance owner jetton_master query_id msg from either_forward_payload _58 jetton_master
+      STSLICER	//  token_wallet_code response balance owner jetton_master query_id msg from either_forward_payload _59
+      ROT	//  token_wallet_code response balance owner jetton_master query_id msg either_forward_payload _59 from
+      STSLICER	//  token_wallet_code response balance owner jetton_master query_id msg either_forward_payload _60
+      SWAP	//  token_wallet_code response balance owner jetton_master query_id msg _60 either_forward_payload
+      STSLICER	//  token_wallet_code response balance owner jetton_master query_id msg _61
+      ENDC	//  token_wallet_code response balance owner jetton_master query_id msg msg_body
+      SWAP	//  token_wallet_code response balance owner jetton_master query_id msg_body msg
       STREF	//  token_wallet_code response balance owner jetton_master query_id msg
-      ENDC	//  token_wallet_code response balance owner jetton_master query_id _76
-      3 PUSHINT	//  token_wallet_code response balance owner jetton_master query_id _76 _79
+      ENDC	//  token_wallet_code response balance owner jetton_master query_id _64
+      1 PUSHINT	//  token_wallet_code response balance owner jetton_master query_id _64 _65=1
       SENDRAWMSG
     }>ELSE<{
       4 BLKDROP	//  token_wallet_code response balance owner jetton_master query_id
     }>
-    16 PUSHINT	//  token_wallet_code response balance owner jetton_master query_id _82=16
-    0 PUSHINT	//  token_wallet_code response balance owner jetton_master query_id _82=16 _83=0
-    OVER	//  token_wallet_code response balance owner jetton_master query_id _82=16 _83=0 _84=16
-    NEWC	//  token_wallet_code response balance owner jetton_master query_id _82=16 _83=0 _84=16 _85
-    6 STU	//  token_wallet_code response balance owner jetton_master query_id _82=16 _83=0 _87
-    s0 s7 XCHG2	//  token_wallet_code _83=0 balance owner jetton_master query_id _82=16 _87 response
-    STSLICER	//  token_wallet_code _83=0 balance owner jetton_master query_id _82=16 _88
-    s6 PUSH	//  token_wallet_code _83=0 balance owner jetton_master query_id _82=16 _88 _89=0
-    STVARUINT16	//  token_wallet_code _83=0 balance owner jetton_master query_id _82=16 _90
-    s1 s6 XCHG	//  token_wallet_code _82=16 balance owner jetton_master query_id _83=0 _90
-    107 STU	//  token_wallet_code _82=16 balance owner jetton_master query_id _104
-    s1 s5 XCHG	//  token_wallet_code query_id balance owner jetton_master _82=16 _104
-    32 STU	//  token_wallet_code query_id balance owner jetton_master _106
-    s1 s4 XCHG	//  token_wallet_code jetton_master balance owner query_id _106
+    10000000 PUSHINT	//  token_wallet_code response balance owner jetton_master query_id _67=10000000
+    2 PUSHINT	//  token_wallet_code response balance owner jetton_master query_id _67=10000000 _68=2
+    RAWRESERVE
+    16 PUSHINT	//  token_wallet_code response balance owner jetton_master query_id _71=16
+    0 PUSHINT	//  token_wallet_code response balance owner jetton_master query_id _71=16 _72=0
+    OVER	//  token_wallet_code response balance owner jetton_master query_id _71=16 _72=0 _73=16
+    NEWC	//  token_wallet_code response balance owner jetton_master query_id _71=16 _72=0 _73=16 _74
+    6 STU	//  token_wallet_code response balance owner jetton_master query_id _71=16 _72=0 _76
+    s0 s7 XCHG2	//  token_wallet_code _72=0 balance owner jetton_master query_id _71=16 _76 response
+    STSLICER	//  token_wallet_code _72=0 balance owner jetton_master query_id _71=16 _77
+    s6 PUSH	//  token_wallet_code _72=0 balance owner jetton_master query_id _71=16 _77 _78=0
+    STVARUINT16	//  token_wallet_code _72=0 balance owner jetton_master query_id _71=16 _79
+    s1 s6 XCHG	//  token_wallet_code _71=16 balance owner jetton_master query_id _72=0 _79
+    107 STU	//  token_wallet_code _71=16 balance owner jetton_master query_id _93
+    s1 s5 XCHG	//  token_wallet_code query_id balance owner jetton_master _71=16 _93
+    32 STU	//  token_wallet_code query_id balance owner jetton_master _95
+    s1 s4 XCHG	//  token_wallet_code jetton_master balance owner query_id _95
     64 STU	//  token_wallet_code jetton_master balance owner msg
-    ENDC	//  token_wallet_code jetton_master balance owner _109
-    130 PUSHINT	//  token_wallet_code jetton_master balance owner _109 _112
+    ENDC	//  token_wallet_code jetton_master balance owner _98
+    130 PUSHINT	//  token_wallet_code jetton_master balance owner _98 _101
     SENDRAWMSG
     s0 s0 s3 XCHG3	//  balance owner jetton_master token_wallet_code
     save_data CALLDICT
   }>
   burn_tokens PROC:<{
-    //  in_msg sender
-    load_data CALLDICT	//  in_msg sender _93 _94 _95 _96
-    DROP	//  in_msg sender balance owner jetton_master
-    s0 s4 XCHG	//  jetton_master sender balance owner in_msg
-    64 LDU	//  jetton_master sender balance owner query_id in_msg
-    LDVARUINT16	//  jetton_master sender balance owner query_id token_amount in_msg
-    LDMSGADDR	//  jetton_master sender balance owner query_id token_amount _102 _101
-    DROP	//  jetton_master sender balance owner query_id token_amount response
-    s4 s1 XCPU	//  jetton_master sender response owner query_id token_amount balance token_amount
-    SUB	//  jetton_master sender response owner query_id token_amount balance
-    s3 s5 PUXC	//  jetton_master balance response owner query_id token_amount owner sender
-    SDEQ	//  jetton_master balance response owner query_id token_amount _19
+    //  in_msg sender msg_value fwd_fee
+    load_data CALLDICT	//  in_msg sender msg_value fwd_fee _68 _69 _70 _71
+    DROP	//  in_msg sender msg_value fwd_fee balance owner jetton_master
+    s0 s6 XCHG	//  jetton_master sender msg_value fwd_fee balance owner in_msg
+    64 LDU	//  jetton_master sender msg_value fwd_fee balance owner query_id in_msg
+    LDVARUINT16	//  jetton_master sender msg_value fwd_fee balance owner query_id token_amount in_msg
+    LDMSGADDR	//  jetton_master sender msg_value fwd_fee balance owner query_id token_amount _77 _76
+    DROP	//  jetton_master sender msg_value fwd_fee balance owner query_id token_amount response
+    s4 s1 XCPU	//  jetton_master sender msg_value fwd_fee response owner query_id token_amount balance token_amount
+    SUB	//  jetton_master sender msg_value fwd_fee response owner query_id token_amount balance
+    s3 s7 PUXC	//  jetton_master balance msg_value fwd_fee response owner query_id token_amount owner sender
+    SDEQ	//  jetton_master balance msg_value fwd_fee response owner query_id token_amount _21
     705 THROWIFNOT
-    s0 s4 XCHG	//  jetton_master token_amount response owner query_id balance
-    -1 GTINT	//  jetton_master token_amount response owner query_id _23
+    s0 s6 XCHG	//  jetton_master token_amount msg_value fwd_fee response owner query_id balance
+    -1 GTINT	//  jetton_master token_amount msg_value fwd_fee response owner query_id _25
     706 THROWIFNOT
-    30000000 PUSHINT	//  jetton_master token_amount response owner query_id _25=30000000
-    0 PUSHINT	//  jetton_master token_amount response owner query_id _25=30000000 _26=0
-    RAWRESERVE
-    18 PUSHINT	//  jetton_master token_amount response owner query_id _29=18
-    0 PUSHINT	//  jetton_master token_amount response owner query_id _29=18 _30=0
-    16 PUSHINT	//  jetton_master token_amount response owner query_id _29=18 _30=0 _31=16
-    NEWC	//  jetton_master token_amount response owner query_id _29=18 _30=0 _31=16 _32
-    6 STU	//  jetton_master token_amount response owner query_id _29=18 _30=0 _34
-    s0 s7 XCHG2	//  _30=0 token_amount response owner query_id _29=18 _34 jetton_master
-    STSLICER	//  _30=0 token_amount response owner query_id _29=18 _35
-    20000000 PUSHINT	//  _30=0 token_amount response owner query_id _29=18 _35 _36=20000000
-    STVARUINT16	//  _30=0 token_amount response owner query_id _29=18 _37
-    s1 s6 XCHG	//  _29=18 token_amount response owner query_id _30=0 _37
-    107 STU	//  _29=18 token_amount response owner query_id _51
-    s1 s5 XCHG	//  query_id token_amount response owner _29=18 _51
-    32 STU	//  query_id token_amount response owner _53
-    s4 s(-1) PUXC	//  query_id token_amount response owner query_id _53
-    64 STU	//  query_id token_amount response owner _55
-    s0 s3 XCHG2	//  query_id owner response _55 token_amount
-    STVARUINT16	//  query_id owner response _56
-    ROT	//  query_id response _56 owner
-    STSLICER	//  query_id response msg
-    ENDC	//  query_id response _58
-    0 PUSHINT	//  query_id response _58 _59=0
-    SENDRAWMSG
-    16 PUSHINT	//  query_id response _61=16
-    0 PUSHINT	//  query_id response _61=16 _62=0
-    OVER	//  query_id response _61=16 _62=0 _63=16
-    NEWC	//  query_id response _61=16 _62=0 _63=16 _64
-    6 STU	//  query_id response _61=16 _62=0 _66
-    s0 s3 XCHG2	//  query_id _62=0 _61=16 _66 response
-    STSLICER	//  query_id _62=0 _61=16 _67
-    s2 PUSH	//  query_id _62=0 _61=16 _67 _68=0
-    STVARUINT16	//  query_id _62=0 _61=16 _69
-    s1 s2 XCHG	//  query_id _61=16 _62=0 _69
-    107 STU	//  query_id _61=16 _83
-    32 STU	//  query_id _85
-    64 STU	//  msg
-    ENDC	//  _88
-    7 PUSHPOW2	//  _88 _91
+    s0 s3 XCHG
+    20000000 PUSHINT	//  jetton_master token_amount msg_value query_id response owner fwd_fee _30
+    ADD	//  jetton_master token_amount msg_value query_id response owner _31
+    s1 s4 XCHG	//  jetton_master token_amount owner query_id response msg_value _31
+    GREATER	//  jetton_master token_amount owner query_id response _32
+    707 THROWIFNOT
+    18 PUSHINT	//  jetton_master token_amount owner query_id response _35=18
+    0 PUSHINT	//  jetton_master token_amount owner query_id response _35=18 _36=0
+    16 PUSHINT	//  jetton_master token_amount owner query_id response _35=18 _36=0 _37=16
+    NEWC	//  jetton_master token_amount owner query_id response _35=18 _36=0 _37=16 _38
+    6 STU	//  jetton_master token_amount owner query_id response _35=18 _36=0 _40
+    s0 s7 XCHG2	//  _36=0 token_amount owner query_id response _35=18 _40 jetton_master
+    STSLICER	//  _36=0 token_amount owner query_id response _35=18 _41
+    s6 PUSH	//  _36=0 token_amount owner query_id response _35=18 _41 _42=0
+    STVARUINT16	//  _36=0 token_amount owner query_id response _35=18 _43
+    s1 s6 XCHG	//  _35=18 token_amount owner query_id response _36=0 _43
+    107 STU	//  _35=18 token_amount owner query_id response _57
+    s1 s5 XCHG	//  response token_amount owner query_id _35=18 _57
+    32 STU	//  response token_amount owner query_id _59
+    64 STU	//  response token_amount owner _61
+    ROT	//  response owner _61 token_amount
+    STVARUINT16	//  response owner _62
+    SWAP	//  response _62 owner
+    STSLICER	//  response _63
+    SWAP	//  _63 response
+    STSLICER	//  msg
+    ENDC	//  _65
+    64 PUSHINT	//  _65 _66=64
     SENDRAWMSG
   }>
   on_bounce PROC:<{
@@ -321,63 +313,76 @@ PROGRAM{
       NIP	//  in_msg
       on_bounce CALLDICT
     }>	//  msg_value in_msg cs
-    LDMSGADDR	//  msg_value in_msg _82 _81
-    DROP	//  msg_value in_msg sender
-    SWAP	//  msg_value sender in_msg
-    32 LDU	//  msg_value sender op in_msg
-    OVER	//  msg_value sender op in_msg op
-    14 EQINT	//  msg_value sender op in_msg _20
-    IFJMP:<{	//  msg_value sender op in_msg
-      NIP
-      s2 POP	//  in_msg sender
+    LDMSGADDR	//  msg_value in_msg _96 _95
+    NIP	//  msg_value in_msg cs
+    LDMSGADDR	//  msg_value in_msg _98 _97
+    NIP	//  msg_value in_msg cs
+    LDVARUINT16	//  msg_value in_msg _100 _99
+    NIP	//  msg_value in_msg cs
+    1 PUSHINT	//  msg_value in_msg cs _19=1
+    SDSKIPFIRST	//  msg_value in_msg cs
+    LDVARUINT16	//  msg_value in_msg _102 _101
+    NIP	//  msg_value in_msg cs
+    LDVARUINT16	//  msg_value in_msg fwd_fee cs
+    LDMSGADDR	//  msg_value in_msg fwd_fee _106 _105
+    DROP	//  msg_value in_msg fwd_fee sender
+    s0 s2 XCHG	//  msg_value sender fwd_fee in_msg
+    32 LDU	//  msg_value sender fwd_fee op in_msg
+    OVER	//  msg_value sender fwd_fee op in_msg op
+    14 EQINT	//  msg_value sender fwd_fee op in_msg _34
+    IFJMP:<{	//  msg_value sender fwd_fee op in_msg
+      s4 POP
+      2DROP	//  in_msg sender
       load_data CALLDICT	//  in_msg sender balance owner jetton_master token_wallet_code
       s1 s4 PUXC	//  in_msg token_wallet_code balance owner jetton_master jetton_master sender
-      SDEQ	//  in_msg token_wallet_code balance owner jetton_master _27
+      SDEQ	//  in_msg token_wallet_code balance owner jetton_master _41
       705 THROWIFNOT
       s0 s4 XCHG	//  jetton_master token_wallet_code balance owner in_msg
       64 LDU	//  jetton_master token_wallet_code balance owner query_id in_msg
-      LDVARUINT16	//  jetton_master token_wallet_code balance owner query_id _92 _91
-      DROP	//  jetton_master token_wallet_code balance owner query_id _33
-      s1 s3 XCHG	//  jetton_master token_wallet_code query_id owner balance _33
+      LDVARUINT16	//  jetton_master token_wallet_code balance owner query_id _116 _115
+      DROP	//  jetton_master token_wallet_code balance owner query_id _47
+      s1 s3 XCHG	//  jetton_master token_wallet_code query_id owner balance _47
       ADD	//  jetton_master token_wallet_code query_id owner balance
-      16 PUSHINT	//  jetton_master token_wallet_code query_id owner balance _37=16
-      0 PUSHINT	//  jetton_master token_wallet_code query_id owner balance _37=16 _38=0
-      OVER	//  jetton_master token_wallet_code query_id owner balance _37=16 _38=0 _39=16
-      NEWC	//  jetton_master token_wallet_code query_id owner balance _37=16 _38=0 _39=16 _40
-      6 STU	//  jetton_master token_wallet_code query_id owner balance _37=16 _38=0 _42
-      s7 PUSH	//  jetton_master token_wallet_code query_id owner balance _37=16 _38=0 _42 jetton_master
-      STSLICER	//  jetton_master token_wallet_code query_id owner balance _37=16 _38=0 _43
-      OVER	//  jetton_master token_wallet_code query_id owner balance _37=16 _38=0 _43 _44=0
-      STVARUINT16	//  jetton_master token_wallet_code query_id owner balance _37=16 _38=0 _45
-      107 STU	//  jetton_master token_wallet_code query_id owner balance _37=16 _59
-      32 STU	//  jetton_master token_wallet_code query_id owner balance _61
-      s1 s3 XCHG	//  jetton_master token_wallet_code balance owner query_id _61
+      16 PUSHINT	//  jetton_master token_wallet_code query_id owner balance _51=16
+      0 PUSHINT	//  jetton_master token_wallet_code query_id owner balance _51=16 _52=0
+      OVER	//  jetton_master token_wallet_code query_id owner balance _51=16 _52=0 _53=16
+      NEWC	//  jetton_master token_wallet_code query_id owner balance _51=16 _52=0 _53=16 _54
+      6 STU	//  jetton_master token_wallet_code query_id owner balance _51=16 _52=0 _56
+      s7 PUSH	//  jetton_master token_wallet_code query_id owner balance _51=16 _52=0 _56 jetton_master
+      STSLICER	//  jetton_master token_wallet_code query_id owner balance _51=16 _52=0 _57
+      OVER	//  jetton_master token_wallet_code query_id owner balance _51=16 _52=0 _57 _58=0
+      STVARUINT16	//  jetton_master token_wallet_code query_id owner balance _51=16 _52=0 _59
+      107 STU	//  jetton_master token_wallet_code query_id owner balance _51=16 _73
+      32 STU	//  jetton_master token_wallet_code query_id owner balance _75
+      s1 s3 XCHG	//  jetton_master token_wallet_code balance owner query_id _75
       64 STU	//  jetton_master token_wallet_code balance owner msg
-      ENDC	//  jetton_master token_wallet_code balance owner _64
-      64 PUSHINT	//  jetton_master token_wallet_code balance owner _64 _65=64
+      ENDC	//  jetton_master token_wallet_code balance owner _78
+      64 PUSHINT	//  jetton_master token_wallet_code balance owner _78 _79=64
       SENDRAWMSG
       2SWAP	//  balance owner jetton_master token_wallet_code
       save_data CALLDICT
-    }>	//  msg_value sender op in_msg
-    OVER	//  msg_value sender op in_msg op
-    11 EQINT	//  msg_value sender op in_msg _69
-    IFJMP:<{	//  msg_value sender op in_msg
-      NIP	//  msg_value sender in_msg
-      s0 s2 XCHG	//  in_msg sender msg_value
+    }>	//  msg_value sender fwd_fee op in_msg
+    OVER	//  msg_value sender fwd_fee op in_msg op
+    11 EQINT	//  msg_value sender fwd_fee op in_msg _83
+    IFJMP:<{	//  msg_value sender fwd_fee op in_msg
+      NIP	//  msg_value sender fwd_fee in_msg
+      s3 s3 XCHG2	//  in_msg sender msg_value fwd_fee
       send_tokens CALLDICT
-    }>	//  msg_value sender op in_msg
-    s3 POP	//  in_msg sender op
-    DUP	//  in_msg sender op op
-    13 EQINT	//  in_msg sender op _72
-    IFJMP:<{	//  in_msg sender op
-      DROP	//  in_msg sender
+    }>	//  msg_value sender fwd_fee op in_msg
+    OVER	//  msg_value sender fwd_fee op in_msg op
+    13 EQINT	//  msg_value sender fwd_fee op in_msg _86
+    IFJMP:<{	//  msg_value sender fwd_fee op in_msg
+      s4 POP
+      2DROP	//  in_msg sender
       receive_tokens CALLDICT
-    }>	//  in_msg sender op
-    17 EQINT	//  in_msg sender _75
-    IFJMP:<{	//  in_msg sender
+    }>	//  msg_value sender fwd_fee op in_msg
+    SWAP	//  msg_value sender fwd_fee in_msg op
+    17 EQINT	//  msg_value sender fwd_fee in_msg _89
+    IFJMP:<{	//  msg_value sender fwd_fee in_msg
+      s3 s3 XCHG2	//  in_msg sender msg_value fwd_fee
       burn_tokens CALLDICT
-    }>	//  in_msg sender
-    2DROP	// 
+    }>	//  msg_value sender fwd_fee in_msg
+    4 BLKDROP	// 
     1112 THROW
   }>
   get_wallet_data PROC:<{

@@ -20,6 +20,7 @@ cell token_code() asm "ft_code PUSHREF";
   int query_id = in_msg~load_uint(64);
   int amount = in_msg~load_coins();
   slice from = in_msg~load_msg_addr();
+  slice response = in_msg~load_msg_addr();
   throw_unless(707,
       equal_slices(calc_user_wallet(from, my_address(), token_code()), sender)
   );
@@ -32,6 +33,7 @@ cell token_code() asm "ft_code PUSHREF";
     .store_uint(0, 1 + 4 + 4 + 64 + 32 + 1 + 1)
     .store_uint(op::released_tons, 32)
     .store_uint(query_id, 64);
+  ;; TODO send to response
   send_raw_message(msg.end_cell(), 64);
 }
 

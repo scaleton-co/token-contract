@@ -7,8 +7,6 @@ const op::excesses = 16;
 const op::burn = 17;
 const op::burn_notification = 18;
 const workchain = 0;
-const gas_consumption = 10000000;
-const storage_fee_reserve = 30000000;
 
 ;; Minter
 const op::mint = 21;
