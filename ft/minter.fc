@@ -19,7 +19,7 @@ int equal_slices (slice s1, slice s2) asm "SDEQ";
           );
 }
 
-() mint_tokens (slice to_address, int token_amount, cell token_wallet_code, int amount) impure {
+() mint_tokens (slice to_address, int token_amount, cell token_wallet_code, int amount, int query_id) impure {
   cell state_init = calculate_token_state_init(to_address, my_address(), token_wallet_code);
   slice to_wallet_address = calc_address(state_init);
   var msg = begin_cell()
@@ -29,7 +29,7 @@ int equal_slices (slice s1, slice s2) asm "SDEQ";
     .store_uint(4 + 2 + 0, 1 + 4 + 4 + 64 + 32 + 1 + 1 + 1)
     .store_ref(state_init)
     .store_uint(op::master_request(), 32)
-    .store_uint(cur_lt(), 64)
+    .store_uint(query_id, 64)
     .store_coins(token_amount);
   send_raw_message(msg.end_cell(), 0);
 }
@@ -56,7 +56,7 @@ int equal_slices (slice s1, slice s2) asm "SDEQ";
         int token_amount = in_msg_body~load_coins();
         slice to_address = in_msg_body~load_msg_addr();
         int amount = in_msg_body~load_coins();
-        mint_tokens(to_address, token_amount, token_wallet_code, amount);
+        mint_tokens(to_address, token_amount, token_wallet_code, amount, query_id);
         save_data(total_supply + token_amount, admin_address, content, token_wallet_code);
         return ();
     }
