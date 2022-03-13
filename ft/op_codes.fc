@@ -1,16 +1,16 @@
-const op::request_transfer = 11;
-const op::transfer_notification = 12;
-const op::transfer = 13;
-const op::master_request = 14;
-const op::balance_request = 15;
-const op::excesses = 16;
-const op::burn = 17;
-const op::burn_notification = 18;
-const workchain = 0;
+int op::request_transfer() asm "11 PUSHINT";
+int op::transfer_notification() asm "12 PUSHINT";
+int op::transfer() asm "13 PUSHINT";
+int op::master_request() asm "14 PUSHINT";
+int op::balance_request() asm "15 PUSHINT";
+int op::excesses() asm "16 PUSHINT";
+int op::burn() asm "17 PUSHINT";
+int op::burn_notification() asm "18 PUSHINT";
+int workchain() asm "0 PUSHINT";
 
 ;; Minter
-const op::mint = 21;
+int op::mint() asm "21 PUSHINT";
 
 ;; WTON
-const op::wrap_my_tons = 19;
-const op::released_tons = 20;
+int op::wrap_my_tons() asm "19 PUSHINT";
+int op::released_tons() asm "20 PUSHINT";

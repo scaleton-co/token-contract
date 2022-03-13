@@ -14,7 +14,7 @@ PROGRAM{
     //  balance owner jetton_master token_wallet_code
     NEWC	//  balance owner jetton_master token_wallet_code _4
     s0 s4 XCHG2	//  token_wallet_code owner jetton_master _4 balance
-    STGRAMS	//  token_wallet_code owner jetton_master _5
+    STVARUINT16	//  token_wallet_code owner jetton_master _5
     ROT	//  token_wallet_code jetton_master _5 owner
     STSLICER	//  token_wallet_code jetton_master _6
     SWAP	//  token_wallet_code _6 jetton_master
@@ -23,15 +23,15 @@ PROGRAM{
     ENDC	//  _9
   }>
   calculate_token_state_init PROC:<{
-    //  owner jetton_master code
-    0 PUSHINT	//  owner jetton_master code _3=0
+    //  owner jetton_master token_wallet_code
+    0 PUSHINT	//  owner jetton_master token_wallet_code _3=0
     s0 s1 s2 XCPUXC
-    s4 s0 s3 XC2PU	//  _3=0 code _4=0 owner jetton_master code
-    pack_wallet_data INLINECALLDICT	//  _3=0 code _5
-    s2 PUSH	//  _3=0 code _5 _6=0
-    NEWC	//  _3=0 code _5 _6=0 _7
-    2 STU	//  _3=0 code _5 _9
-    s1 s2 XCHG	//  _3=0 _5 code _9
+    s4 s0 s3 XC2PU	//  _3=0 token_wallet_code _4=0 owner jetton_master token_wallet_code
+    pack_wallet_data INLINECALLDICT	//  _3=0 token_wallet_code _5
+    s2 PUSH	//  _3=0 token_wallet_code _5 _6=0
+    NEWC	//  _3=0 token_wallet_code _5 _6=0 _7
+    2 STU	//  _3=0 token_wallet_code _5 _9
+    s1 s2 XCHG	//  _3=0 _5 token_wallet_code _9
     STDICT	//  _3=0 _5 _10
     STDICT	//  _3=0 _11
     1 STU	//  _13
@@ -40,17 +40,17 @@ PROGRAM{
   calc_address PROC:<{
     //  state_init
     HASHCU	//  _1
-    0 PUSHINT	//  _1 _2=0
-    4 PUSHINT	//  _1 _2=0 _3=4
-    NEWC	//  _1 _2=0 _3=4 _4
-    3 STU	//  _1 _2=0 _6
+    0 PUSHINT	//  _1 _2
+    4 PUSHINT	//  _1 _2 _3=4
+    NEWC	//  _1 _2 _3=4 _4
+    3 STU	//  _1 _2 _6
     8 STI	//  _1 _8
     256 STU	//  _10
     ENDC	//  _11
     CTOS	//  _12
   }>
   calc_user_wallet PROC:<{
-    //  owner jetton_master code
+    //  owner jetton_master token_wallet_code
     calculate_token_state_init INLINECALLDICT	//  _3
     calc_address INLINECALLDICT	//  _4
   }>
@@ -60,42 +60,43 @@ PROGRAM{
     CTOS	//  ds
     LDVARUINT16	//  _3 ds
     LDMSGADDR	//  _3 _5 ds
-    LDREF	//  _3 _5 _14 _13
-    DROP	//  _3 _5 _7
+    LDREF	//  _3 _5 _7 ds
+    LDREF	//  _3 _5 _7 _18 _17
+    DROP	//  _3 _5 _7 _9
   }>
   save_data PROC:<{
-    //  supply admin content
-    NEWC	//  supply admin content _3
-    s0 s3 XCHG2	//  content admin _3 supply
-    STGRAMS	//  content admin _4
-    SWAP	//  content _4 admin
-    STSLICER	//  content _5
-    STREF	//  _6
-    ENDC	//  _7
+    //  supply admin content token_wallet_code
+    NEWC	//  supply admin content token_wallet_code _4
+    s0 s4 XCHG2	//  token_wallet_code admin content _4 supply
+    STVARUINT16	//  token_wallet_code admin content _5
+    ROT	//  token_wallet_code content _5 admin
+    STSLICER	//  token_wallet_code content _6
+    STREF	//  token_wallet_code _7
+    STREF	//  _8
+    ENDC	//  _9
     c4 POP
   }>
   mint_tokens PROC:<{
-    //  to amount
-    MYADDR	//  to amount _3
-    ft_code PUSHREF	//  to amount _3 _4
-    s2 s3 XCHG	//  amount to _3 _4
+    //  to amount token_wallet_code
+    MYADDR	//  to amount token_wallet_code _4
+    s3 s0 s0 XCHG3	//  amount to _4 token_wallet_code
     calculate_token_state_init INLINECALLDICT	//  amount state_init
     DUP	//  amount state_init state_init
     calc_address INLINECALLDICT	//  amount state_init to_wallet
     LTIME	//  amount state_init to_wallet _9
-    14 PUSHINT	//  amount state_init to_wallet _9 _10=14
-    6 PUSHINT	//  amount state_init to_wallet _9 _10=14 _15
-    24 PUSHINT	//  amount state_init to_wallet _9 _10=14 _15 _16=24
-    NEWC	//  amount state_init to_wallet _9 _10=14 _15 _16=24 _17
-    6 STU	//  amount state_init to_wallet _9 _10=14 _15 _19
-    s0 s4 XCHG2	//  amount state_init _15 _9 _10=14 _19 to_wallet
-    STSLICER	//  amount state_init _15 _9 _10=14 _20
-    40000000 PUSHINT	//  amount state_init _15 _9 _10=14 _20 _21=40000000
-    STVARUINT16	//  amount state_init _15 _9 _10=14 _22
-    s1 s3 XCHG	//  amount state_init _10=14 _9 _15 _22
-    108 STU	//  amount state_init _10=14 _9 _38
-    s1 s3 XCHG	//  amount _9 _10=14 state_init _38
-    STREF	//  amount _9 _10=14 _39
+    14 PUSHINT	//  amount state_init to_wallet _9 _10
+    6 PUSHINT	//  amount state_init to_wallet _9 _10 _15
+    24 PUSHINT	//  amount state_init to_wallet _9 _10 _15 _16=24
+    NEWC	//  amount state_init to_wallet _9 _10 _15 _16=24 _17
+    6 STU	//  amount state_init to_wallet _9 _10 _15 _19
+    s0 s4 XCHG2	//  amount state_init _15 _9 _10 _19 to_wallet
+    STSLICER	//  amount state_init _15 _9 _10 _20
+    40000000 PUSHINT	//  amount state_init _15 _9 _10 _20 _21=40000000
+    STVARUINT16	//  amount state_init _15 _9 _10 _22
+    s1 s3 XCHG	//  amount state_init _10 _9 _15 _22
+    108 STU	//  amount state_init _10 _9 _38
+    s1 s3 XCHG	//  amount _9 _10 state_init _38
+    STREF	//  amount _9 _10 _39
     32 STU	//  amount _9 _41
     64 STU	//  amount _43
     SWAP	//  _43 amount
@@ -115,57 +116,58 @@ PROGRAM{
     IFJMP:<{	//  in_msg cs
       2DROP	// 
     }>	//  in_msg cs
-    LDMSGADDR	//  in_msg _65 _64
+    LDMSGADDR	//  in_msg _61 _60
     DROP	//  in_msg sender
     SWAP	//  sender in_msg
     32 LDU	//  sender op in_msg
-    load_data INLINECALLDICT	//  sender op in_msg supply admin content
-    s4 PUSH	//  sender op in_msg supply admin content op
-    21 EQINT	//  sender op in_msg supply admin content _23
-    IF:<{	//  sender op in_msg supply admin content
-      s5 s1 PUSH2	//  sender op in_msg supply admin content sender admin
-      SDEQ	//  sender op in_msg supply admin content _25
+    64 LDU	//  sender op _65 _64
+    NIP	//  sender op in_msg
+    load_data INLINECALLDICT	//  sender op in_msg supply admin content token_wallet_code
+    21 PUSHINT	//  sender op in_msg supply admin content token_wallet_code _27
+    s6 s(-1) PUXC	//  sender op in_msg supply admin content token_wallet_code op _27
+    EQUAL	//  sender op in_msg supply admin content token_wallet_code _28
+    IFJMP:<{	//  sender op in_msg supply admin content token_wallet_code
+      s5 POP	//  sender token_wallet_code in_msg supply admin content
+      s5 s1 XCPU	//  content token_wallet_code in_msg supply admin sender admin
+      SDEQ	//  content token_wallet_code in_msg supply admin _30
       73 THROWIFNOT
-      s0 s3 XCHG	//  sender op content supply admin in_msg
-      LDVARUINT16	//  sender op content supply admin amount in_msg
-      LDMSGADDR	//  sender op content supply admin amount destination in_msg
-      s1 s2 XCPU	//  sender op content supply admin amount in_msg destination amount
+      s0 s2 XCHG	//  content token_wallet_code admin supply in_msg
+      LDVARUINT16	//  content token_wallet_code admin supply amount in_msg
+      LDMSGADDR	//  content token_wallet_code admin supply amount _73 _72
+      DROP	//  content token_wallet_code admin supply amount destination
+      s1 s4 PUSH2	//  content token_wallet_code admin supply amount destination amount token_wallet_code
       mint_tokens CALLDICT
-      s3 s3 XCHG2	//  sender op content in_msg admin supply amount
-      ADD	//  sender op content in_msg admin _34
-      s0 s1 s3 XCHG3	//  sender op in_msg _34 admin content
+      ADD	//  content token_wallet_code admin _39
+      s1 s3 s3 XCHG3	//  _39 admin content token_wallet_code
       save_data INLINECALLDICT
-    }>ELSE<{
-      3 BLKDROP	//  sender op in_msg
-    }>
-    SWAP	//  sender in_msg op
-    18 EQINT	//  sender in_msg _37
-    IF:<{	//  sender in_msg
-      64 LDU	//  sender _76 _75
-      NIP	//  sender in_msg
-      LDVARUINT16	//  sender amount in_msg
-      LDMSGADDR	//  sender amount _80 _79
-      DROP	//  sender amount from
-      MYADDR	//  sender amount from _49
-      ft_code PUSHREF	//  sender amount from _49 _50
-      calc_user_wallet INLINECALLDICT	//  sender amount _51
-      ROT	//  amount _51 sender
-      SDEQ	//  amount _52
+    }>	//  sender op in_msg supply admin content token_wallet_code
+    18 PUSHINT	//  sender op in_msg supply admin content token_wallet_code _41
+    s1 s6 XCHG	//  sender token_wallet_code in_msg supply admin content op _41
+    EQUAL	//  sender token_wallet_code in_msg supply admin content _42
+    IFJMP:<{	//  sender token_wallet_code in_msg supply admin content
+      s0 s3 XCHG	//  sender token_wallet_code content supply admin in_msg
+      LDVARUINT16	//  sender token_wallet_code content supply admin amount in_msg
+      LDMSGADDR	//  sender token_wallet_code content supply admin amount _77 _76
+      DROP	//  sender token_wallet_code content supply admin amount from
+      MYADDR	//  sender token_wallet_code content supply admin amount from _50
+      s6 PUSH	//  sender token_wallet_code content supply admin amount from _50 token_wallet_code
+      calc_user_wallet INLINECALLDICT	//  sender token_wallet_code content supply admin amount _51
+      s0 s6 XCHG2	//  amount token_wallet_code content supply admin _51 sender
+      SDEQ	//  amount token_wallet_code content supply admin _52
       707 THROWIFNOT
-      load_data INLINECALLDICT	//  amount supply admin content
-      s2 s3 XCHG2	//  content admin supply amount
-      SUB	//  content admin _58
-      s0 s2 XCHG	//  _58 admin content
+      s0 s4 XCHG	//  admin token_wallet_code content supply amount
+      SUB	//  admin token_wallet_code content _54
+      s3 s1 s3 XCHG3	//  _54 admin content token_wallet_code
       save_data INLINECALLDICT
-    }>ELSE<{
-      2DROP	// 
-    }>
-    1111 THROW
+    }>	//  sender token_wallet_code in_msg supply admin content
+    6 BLKDROP	// 
+    16 PUSHPOW2DEC	//  _56=65535
+    THROWANY
   }>
   get_jetton_data PROC:<{
     // 
-    load_data INLINECALLDICT	//  supply admin content
-    -1 PUSHINT	//  supply admin content _4=-1
-    -ROT	//  supply _4=-1 admin content
+    load_data INLINECALLDICT	//  supply admin content token_wallet_code
+    -1 PUSHINT	//  supply admin content token_wallet_code _5=-1
+    3 -ROLL	//  supply _5=-1 admin content token_wallet_code
   }>
 }END>c

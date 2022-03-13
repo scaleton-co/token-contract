@@ -10,7 +10,7 @@ cell token_code() asm "ft_code PUSHREF";
     .store_coins(40000000)
     .store_uint(4 + 2 + 0, 1 + 4 + 4 + 64 + 32 + 1 + 1 + 1)
     .store_ref(state_init)
-    .store_uint(op::master_request, 32)
+    .store_uint(op::master_request(), 32)
     .store_uint(cur_lt(), 64)
     .store_coins(amount);
   send_raw_message(msg.end_cell(), 0);
@@ -31,7 +31,7 @@ cell token_code() asm "ft_code PUSHREF";
     .store_slice(from)
     .store_coins(amount)
     .store_uint(0, 1 + 4 + 4 + 64 + 32 + 1 + 1)
-    .store_uint(op::released_tons, 32)
+    .store_uint(op::released_tons(), 32)
     .store_uint(query_id, 64);
   ;; TODO send to response
   send_raw_message(msg.end_cell(), 64);
@@ -48,11 +48,11 @@ cell token_code() asm "ft_code PUSHREF";
   
   int op = in_msg~load_uint(32);
 
-  if(op == op::wrap_my_tons) { ;; token owner command
+  if(op == op::wrap_my_tons()) { ;; token owner command
     msg_value -= 50000000;
     return mint_wtons(sender, msg_value);
   }
-  if(op == op::burn_notification) { ;; unwrap my tons
+  if(op == op::burn_notification()) { ;; unwrap my tons
     return release_tons(in_msg, sender);
   }
 
