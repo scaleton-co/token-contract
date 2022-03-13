@@ -1,7 +1,7 @@
 int equal_slices (slice s1, slice s2) asm "SDEQ";
 
 {-
-  storage#_ supply:Coins controller:MsgAddress content:^Cell token_wallet_code:^Cell = Storage;
+  storage#_ total_supply:Coins admin_address:MsgAddress content:^Cell token_wallet_code:^Cell = Storage;
 -}
 
 (int, slice, cell, cell) load_data() inline {
@@ -9,66 +9,72 @@ int equal_slices (slice s1, slice s2) asm "SDEQ";
   return (ds~load_coins(), ds~load_msg_addr(), ds~load_ref(), ds~load_ref());
 }
 
-() save_data(int supply, slice admin, cell content, cell token_wallet_code) impure inline {
+() save_data(int total_supply, slice admin_address, cell content, cell token_wallet_code) impure inline {
   set_data(begin_cell()
-            .store_coins(supply)
-            .store_slice(admin)
+            .store_coins(total_supply)
+            .store_slice(admin_address)
             .store_ref(content)
             .store_ref(token_wallet_code)
            .end_cell()
           );
 }
 
-
-() mint_tokens (slice to, int amount, cell token_wallet_code) impure {
-  cell state_init = calculate_token_state_init(to, my_address(), token_wallet_code);
-  slice to_wallet = calc_address(state_init);
+() mint_tokens (slice to_address, int token_amount, cell token_wallet_code, int amount) impure {
+  cell state_init = calculate_token_state_init(to_address, my_address(), token_wallet_code);
+  slice to_wallet_address = calc_address(state_init);
   var msg = begin_cell()
     .store_uint(0x18, 6)
-    .store_slice(to_wallet)
-    .store_coins(40000000)
+    .store_slice(to_wallet_address)
+    .store_coins(amount)
     .store_uint(4 + 2 + 0, 1 + 4 + 4 + 64 + 32 + 1 + 1 + 1)
     .store_ref(state_init)
     .store_uint(op::master_request(), 32)
     .store_uint(cur_lt(), 64)
-    .store_coins(amount);
+    .store_coins(token_amount);
   send_raw_message(msg.end_cell(), 0);
 }
 
-() recv_internal(int msg_value, cell in_msg_cell, slice in_msg) impure {
+() recv_internal(int msg_value, cell in_msg_full, slice in_msg_body) impure {
+    if (in_msg_body.slice_empty?()) { ;; ignore empty messages
+        return ();
+    }
+    slice cs = in_msg_full.begin_parse();
+    int flags = cs~load_uint(4);
 
-  slice cs = in_msg_cell.begin_parse();
-  int flags = cs~load_uint(4);
-  if (flags & 1) {
-    return ();
-  }
-  slice sender = cs~load_msg_addr();
+    if (flags & 1) { ;; ignore all bounced messages
+        return ();
+    }
+    slice sender_address = cs~load_msg_addr();
   
-  int op = in_msg~load_uint(32);
-  int query_id = in_msg~load_uint(64);
+    int op = in_msg_body~load_uint(32);
+    int query_id = in_msg_body~load_uint(64);
 
-  (int supply, slice admin, cell content, cell token_wallet_code) = load_data();
-  if(op == op::mint()) {
-    throw_unless(73, equal_slices(sender,admin));
-    int amount = in_msg~load_coins();
-    slice destination = in_msg~load_msg_addr();
-    mint_tokens(destination, amount, token_wallet_code);
-    save_data(supply + amount, admin, content, token_wallet_code);
-    return ();
-  }
-  if(op == op::burn_notification()) {
-    int amount = in_msg~load_coins();
-    slice from = in_msg~load_msg_addr();
-    throw_unless(707,
-        equal_slices(calc_user_wallet(from, my_address(), token_wallet_code), sender)
-    );
-    save_data(supply - amount, admin, content, token_wallet_code);
-    return ();
-  }
-  throw(0xffff);
+    (int total_supply, slice admin_address, cell content, cell token_wallet_code) = load_data();
+
+    if (op == op::mint()) {
+        throw_unless(73, equal_slices(sender_address, admin_address));
+        int token_amount = in_msg_body~load_coins();
+        slice to_address = in_msg_body~load_msg_addr();
+        int amount = in_msg_body~load_coins();
+        mint_tokens(to_address, token_amount, token_wallet_code, amount);
+        save_data(total_supply + token_amount, admin_address, content, token_wallet_code);
+        return ();
+    }
+
+    if (op == op::burn_notification()) {
+        int token_amount = in_msg_body~load_coins();
+        slice from_address = in_msg_body~load_msg_addr();
+        throw_unless(707,
+            equal_slices(calc_user_wallet(from_address, my_address(), token_wallet_code), sender_address)
+        );
+        save_data(total_supply - token_amount, admin_address, content, token_wallet_code);
+        return ();
+    }
+
+    throw(0xffff);
 }
 
 (int, int, slice, cell, cell) get_jetton_data() method_id {
-  (int supply, slice admin, cell content, cell token_wallet_code) = load_data();
-  return (supply, -1, admin, content, token_wallet_code);
+    (int total_supply, slice admin_address, cell content, cell token_wallet_code) = load_data();
+    return (total_supply, -1, admin_address, content, token_wallet_code);
 }
