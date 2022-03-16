@@ -106,9 +106,9 @@ int gas_consumption() asm "10000000 PUSHINT";
                      ;; but last one is optional (it is ok if it fails)
                      2 * fwd_fee +
                      (2 * gas_consumption() + min_tons_for_storage()));
-                     ;; universal message send fee calculation may be activated her
+                     ;; universal message send fee calculation may be activated here
                      ;; by using this instead of fwd_fee
-                     ;; msg_fwd_fee(to_wallet, msg_body, state_init, 15) +
+                     ;; msg_fwd_fee(to_wallet, msg_body, state_init, 15)
 
   send_raw_message(msg.end_cell(), 64); ;; revert on errors
   return save_data(balance, owner, jetton_master, token_wallet_code);

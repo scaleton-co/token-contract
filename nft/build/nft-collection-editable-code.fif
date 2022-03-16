@@ -1,6 +1,7 @@
 "Asm.fif" include
-// automatically generated from `stdlib.fc` `op-codes.fc` `nft-collection-editable.fc` 
+// automatically generated from `stdlib.fc` `params.fc` `op-codes.fc` `nft-collection-editable.fc` 
 PROGRAM{
+  DECLPROC force_chain
   DECLPROC load_data
   DECLPROC save_data
   DECLPROC calculate_nft_item_state_init
@@ -12,6 +13,14 @@ PROGRAM{
   92067 DECLMETHOD get_nft_address_by_index
   85719 DECLMETHOD royalty_params
   68445 DECLMETHOD get_nft_content
+  force_chain PROC:<{
+    //  adr
+    REWRITESTDADDR	//  _8 _9
+    DROP	//  wc
+    0 PUSHINT	//  wc _5
+    EQUAL	//  _6
+    333 THROWIFNOT
+  }>
   load_data PROC:<{
     // 
     c4 PUSH	//  _1
@@ -55,12 +64,12 @@ PROGRAM{
     ENDC	//  _18
   }>
   calculate_nft_item_address PROC:<{
-    //  workchain state_init
-    HASHCU	//  workchain _2
-    4 PUSHINT	//  workchain _2 _3=4
-    NEWC	//  workchain _2 _3=4 _4
-    3 STU	//  workchain _2 _6
-    s1 s2 XCHG	//  _2 workchain _6
+    //  wc state_init
+    HASHCU	//  wc _2
+    4 PUSHINT	//  wc _2 _3=4
+    NEWC	//  wc _2 _3=4 _4
+    3 STU	//  wc _2 _6
+    s1 s2 XCHG	//  _2 wc _6
     8 STI	//  _2 _8
     256 STU	//  _10
     ENDC	//  _11
@@ -70,8 +79,8 @@ PROGRAM{
     //  item_index nft_item_code amount nft_content
     2SWAP	//  amount nft_content item_index nft_item_code
     calculate_nft_item_state_init CALLDICT	//  amount nft_content state_init
-    0 PUSHINT	//  amount nft_content state_init _7=0
-    OVER	//  amount nft_content state_init _7=0 state_init
+    0 PUSHINT	//  amount nft_content state_init _7
+    OVER	//  amount nft_content state_init _7 state_init
     calculate_nft_item_address CALLDICT	//  amount nft_content state_init nft_address
     7 PUSHINT	//  amount nft_content state_init nft_address _14
     24 PUSHINT	//  amount nft_content state_init nft_address _14 _15=24

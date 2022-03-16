@@ -1,0 +1,7 @@
+int workchain() asm "0 PUSHINT";
+
+
+() force_chain(slice adr) impure {
+  (int wc, _) = parse_std_addr(adr);
+  throw_unless(333, wc == workchain());
+}
