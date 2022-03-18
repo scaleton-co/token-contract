@@ -1,3 +1,5 @@
+{- NOTE: CODE IS OUTDATED -}
+
 int equal_slices (slice s1, slice s2) asm "SDEQ";
 cell token_code() asm "ft_code PUSHREF";
 

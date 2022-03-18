@@ -83,25 +83,34 @@ PROGRAM{
     calculate_token_state_init INLINECALLDICT	//  amount token_amount query_id state_init
     DUP	//  amount token_amount query_id state_init state_init
     calc_address INLINECALLDICT	//  amount token_amount query_id state_init to_wallet_address
-    14 PUSHINT	//  amount token_amount query_id state_init to_wallet_address _11
-    6 PUSHINT	//  amount token_amount query_id state_init to_wallet_address _11 _16
-    24 PUSHINT	//  amount token_amount query_id state_init to_wallet_address _11 _16 _17=24
-    NEWC	//  amount token_amount query_id state_init to_wallet_address _11 _16 _17=24 _18
-    6 STU	//  amount token_amount query_id state_init to_wallet_address _11 _16 _20
-    s0 s3 XCHG2	//  amount token_amount query_id state_init _16 _11 _20 to_wallet_address
-    STSLICER	//  amount token_amount query_id state_init _16 _11 _21
-    s0 s6 XCHG2	//  _11 token_amount query_id state_init _16 _21 amount
-    STVARUINT16	//  _11 token_amount query_id state_init _16 _22
-    108 STU	//  _11 token_amount query_id state_init _38
-    STREF	//  _11 token_amount query_id _39
-    s1 s3 XCHG	//  query_id token_amount _11 _39
-    32 STU	//  query_id token_amount _41
-    s1 s2 XCHG	//  token_amount query_id _41
-    64 STU	//  token_amount _43
-    SWAP	//  _43 token_amount
-    STVARUINT16	//  msg
-    ENDC	//  _45
-    0 PUSHINT	//  _45 _46=0
+    0 PUSHINT	//  amount token_amount query_id state_init to_wallet_address _11=0
+    DUP	//  amount token_amount query_id state_init to_wallet_address _11=0 _12=0
+    14 PUSHINT	//  amount token_amount query_id state_init to_wallet_address _11=0 _12=0 _13
+    6 PUSHINT	//  amount token_amount query_id state_init to_wallet_address _11=0 _12=0 _13 _18
+    24 PUSHINT	//  amount token_amount query_id state_init to_wallet_address _11=0 _12=0 _13 _18 _19=24
+    NEWC	//  amount token_amount query_id state_init to_wallet_address _11=0 _12=0 _13 _18 _19=24 _20
+    6 STU	//  amount token_amount query_id state_init to_wallet_address _11=0 _12=0 _13 _18 _22
+    s0 s5 XCHG2	//  amount token_amount query_id state_init _18 _11=0 _12=0 _13 _22 to_wallet_address
+    STSLICER	//  amount token_amount query_id state_init _18 _11=0 _12=0 _13 _23
+    s0 s8 XCHG2	//  _13 token_amount query_id state_init _18 _11=0 _12=0 _23 amount
+    STVARUINT16	//  _13 token_amount query_id state_init _18 _11=0 _12=0 _24
+    s1 s3 XCHG	//  _13 token_amount query_id state_init _12=0 _11=0 _18 _24
+    108 STU	//  _13 token_amount query_id state_init _12=0 _11=0 _40
+    s1 s3 XCHG	//  _13 token_amount query_id _11=0 _12=0 state_init _40
+    STREF	//  _13 token_amount query_id _11=0 _12=0 _41
+    s1 s5 XCHG	//  _12=0 token_amount query_id _11=0 _13 _41
+    32 STU	//  _12=0 token_amount query_id _11=0 _43
+    s1 s2 XCHG	//  _12=0 token_amount _11=0 query_id _43
+    64 STU	//  _12=0 token_amount _11=0 _45
+    ROT	//  _12=0 _11=0 _45 token_amount
+    STVARUINT16	//  _12=0 _11=0 _46
+    s1 s2 XCHG	//  _11=0 _12=0 _46
+    4 STU	//  _11=0 _48
+    OVER	//  _11=0 _48 _49=0
+    STVARUINT16	//  _11=0 _50
+    1 STU	//  msg
+    ENDC	//  _53
+    0 PUSHINT	//  _53 _54=0
     SENDRAWMSG
   }>
   recv_internal PROC:<{

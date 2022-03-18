@@ -132,6 +132,8 @@ int gas_consumption() asm "10000000 PUSHINT";
   slice response = in_msg~load_msg_addr();
   throw_unless(707,
       equal_slices(calc_user_wallet(from, jetton_master, token_wallet_code), sender)
+      |
+      equal_slices(jetton_master, sender)
   );
   int forward_ton_amount = in_msg~load_coins();
   slice either_forward_payload = in_msg;
@@ -224,19 +226,8 @@ int gas_consumption() asm "10000000 PUSHINT";
   int op = in_msg~load_uint(32);
 
   if(op == op::master_request()) { ;; jetton master command
-    (int balance, slice owner, slice jetton_master, cell token_wallet_code) = load_data();
-    throw_unless(705, equal_slices(jetton_master, sender));
-    int query_id = in_msg~load_uint(64);
-    balance += in_msg~load_coins();
-    var msg = begin_cell()
-      .store_uint(0x10, 6) ;; nobounce - int_msg_info$0 ihr_disabled:Bool bounce:Bool bounced:Bool src:MsgAddress -> 011000
-      .store_slice(jetton_master)
-      .store_coins(0)
-      .store_uint(0, 1 + 4 + 4 + 64 + 32 + 1 + 1)
-      .store_uint(op::excesses(), 32)
-      .store_uint(query_id, 64);
-    send_raw_message(msg.end_cell(), 64);
-    return save_data(balance, owner, jetton_master, token_wallet_code);
+    ;; master is trusted like it is an other wallet
+    return receive_tokens(in_msg, sender);
   }
 
   if(op == op::request_transfer()) { ;; outgoing transfer
