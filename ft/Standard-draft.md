@@ -31,7 +31,12 @@ Must implement:
 
 TL-B schema of inbound message: 
 
-`transfer#op::request_transfer query_id:uint64 amount:(VarUInteger 32) destination:MsgAddress response_destination:MsgAddress custom_payload:(Maybe ^Cell) forward_ton_amount:(VarUInteger 16) forward_payload:(Either Cell ^Cell) = InternalMsgBody;`
+```
+transfer#f8a7ea5 query_id:uint64 amount:(VarUInteger 16) destination:MsgAddress
+                 response_destination:MsgAddress custom_payload:(Maybe ^Cell)
+                 forward_ton_amount:(VarUInteger 16) forward_payload:(Either Cell ^Cell)
+                 = InternalMsgBody;
+```
 
 `query_id` - arbitrary request number.
 
@@ -67,7 +72,13 @@ TL-B schema of inbound message:
 
 2. if `forward_amount > 0` ensure that receiver's jetton-wallet send message to `destination` address with `forward_amount` nanotons attached and with the following layout:
 
-    TL-B schema: `jetton_transfer#05138d91 query_id:uint64 amount:(VarUInteger 32) jetton:MsgAddress sender:MsgAddress  forward_payload:(Either Cell ^Cell) = InternalMsgBody;`
+    TL-B schema: 
+
+```
+transfer_notification#1b26d24 query_id:uint64 amount:(VarUInteger 16) jetton_master:MsgAddress
+                              sender:MsgAddress forward_payload:(Either Cell ^Cell)
+                              = InternalMsgBody;
+```
 
     `query_id` should be equal with request's `query_id`.
 
@@ -93,7 +104,11 @@ TL-B schema of inbound message:
 
 TL-B schema of inbound message: 
 
-`burn#01010101 query_id:uint64 amount:(VarUInteger 32) response_destination:MsgAddress custom_payload:(Maybe ^Cell) = InternalMsgBody;`
+```
+burn#595f07bc query_id:uint64 amount:(VarUInteger 16) 
+              response_destination:MsgAddress custom_payload:(Maybe ^Cell)
+              = InternalMsgBody;
+```
 
 `query_id` - arbitrary request number.
 
@@ -118,7 +133,7 @@ TL-B schema of inbound message:
 
 1. decrease jetton amount on burner wallet by `amount` and send notification to jetton master with information about burn.
 
-2. Send all excesses of incoming message coins to `response_destination` with the following layout:
+2. Jetton master should send all excesses of incoming message coins to `response_destination` with the following layout:
 
     TL-B schema: `excesses#d53276db query_id:uint64 = InternalMsgBody;`
 
@@ -126,12 +141,13 @@ TL-B schema of inbound message:
 
 
 ### Get-methods
+1. `get_wallet_data()` returns `(int balance, slice owner, slice jetton, cell token_wallet_code)`
 
-1. `get_data()` returns `(slice jetton, int amount)`
-
+    `balance` - (uint256) amount of jettons on wallet.
+    `owner` - (MsgAddress) address of wallet owner;
     `jetton` - (MsgAddress) address of Jetton master-address;
+    `token_wallet_code` - (cell) with code of this wallet;
 
-    `amount` - (uint256) amount of jettons on wallet.
 
 
 ## Jetton master contract
@@ -140,7 +156,7 @@ TL-B schema of inbound message:
 
 ### Get-methods
 
-1. `get_jetton_data()` returns `(int supply, int mintable, slice controller, cell jetton_content)`
+1. `get_jetton_data()` returns `(int supply, int mintable, slice controller, cell jetton_content, cell token_wallet_code)`
 
     `supply` - (integer) - the total number of issues jettons
 
@@ -149,3 +165,74 @@ TL-B schema of inbound message:
     `controller` - (MsgAddressInt) - address of smart-contrac which control Jetton
     
     `jetton_content` - cell - data in accordance to https://github.com/ton-blockchain/TIPs/issues/64
+    
+    `token_wallet_code` - cell - code of wallet for that jetton
+
+# TL-B schema
+
+```
+nothing$0 {X:Type} = Maybe X;
+just$1 {X:Type} value:X = Maybe X;
+left$0 {X:Type} {Y:Type} value:X = Either X Y;
+right$1 {X:Type} {Y:Type} value:Y = Either X Y;
+var_uint$_ {n:#} len:(#< n) value:(uint (len * 8))
+         = VarUInteger n;
+
+addr_none$00 = MsgAddressExt;
+addr_extern$01 len:(## 9) external_address:(bits len) 
+             = MsgAddressExt;
+anycast_info$_ depth:(#<= 30) { depth >= 1 }
+   rewrite_pfx:(bits depth) = Anycast;
+addr_std$10 anycast:(Maybe Anycast) 
+   workchain_id:int8 address:bits256  = MsgAddressInt;
+addr_var$11 anycast:(Maybe Anycast) addr_len:(## 9) 
+   workchain_id:int32 address:(bits addr_len) = MsgAddressInt;
+_ _:MsgAddressInt = MsgAddress;
+_ _:MsgAddressExt = MsgAddress;
+
+transfer query_id:uint64 amount:(VarUInteger 16) destination:MsgAddress
+           response_destination:MsgAddress custom_payload:(Maybe ^Cell)
+           forward_ton_amount:(VarUInteger 16) forward_payload:(Either Cell ^Cell)
+           = InternalMsgBody;
+
+transfer_notification query_id:uint64 amount:(VarUInteger 16) jetton_master:MsgAddress
+           sender:MsgAddress forward_payload:(Either Cell ^Cell)
+           = InternalMsgBody;
+
+excesses query_id:uint64 = InternalMsgBody;
+
+burn query_id:uint64 amount:(VarUInteger 16) 
+       response_destination:MsgAddress custom_payload:(Maybe ^Cell)
+       = InternalMsgBody;
+
+// ----- Unspecified by standard, but suggested format of internal message
+
+internal_transfer  query_id:uint64 amount:(VarUInteger 16) from:MsgAddress
+                     response_address:MsgAddress
+                     forward_ton_amount:(VarUInteger 16)
+                     forward_payload:(Either Cell ^Cell) 
+                     = InternalMsgBody;
+burn_notification query_id:uint64 amount:(VarUInteger 16) 
+       sender:MsgAddress response_destination:MsgAddress
+       = InternalMsgBody;
+master_request query_id:uint64 amount:(VarUInteger 16) from:MsgAddress
+                     response_address:MsgAddress
+                     forward_ton_amount:(VarUInteger 16)
+                     forward_payload:(Either Cell ^Cell) 
+                     = InternalMsgBody;
+  
+```
+
+`crc32('transfer query_id:uint64 amount:VarUInteger 16 destination:MsgAddress response_destination:MsgAddress custom_payload:Maybe ^Cell forward_ton_amount:VarUInteger 16 forward_payload:Either Cell ^Cell = InternalMsgBody') = 0x8f8a7ea5 & 0x7fffffff = 0xf8a7ea5`
+
+`crc32('transfer_notification query_id:uint64 amount:VarUInteger 16 jetton_master:MsgAddress sender:MsgAddress forward_payload:Either Cell ^Cell = InternalMsgBody') = 0x81b26d24 & 0x7fffffff = 0x1b26d24`
+
+`crc32('excesses query_id:uint64 = InternalMsgBody') = 0x553276db | 0x80000000 = 0xd53276db`
+
+`crc32('burn query_id:uint64 amount:VarUInteger 16 response_destination:MsgAddress custom_payload:Maybe ^Cell = InternalMsgBody') = 0x595f07bc & 0x7fffffff = 0x595f07bc`
+
+`crc32('internal_transfer query_id:uint64 amount:VarUInteger 16 from:MsgAddress response_address:MsgAddress forward_ton_amount:VarUInteger 16 forward_payload:Either Cell ^Cell = InternalMsgBody') = 0x978d4519 & 0x7fffffff = 0x178d4519`
+
+`crc32('burn_notification query_id:uint64 amount:VarUInteger 16 sender:MsgAddress response_destination:MsgAddress = InternalMsgBody') = 0x7bdd97de & 0x7fffffff = 0x7bdd97de`
+
+`crc32('master_request query_id:uint64 amount:VarUInteger 16 from:MsgAddress response_address:MsgAddress forward_ton_amount:VarUInteger 16 forward_payload:Either Cell ^Cell = InternalMsgBody') = 0xc932b42c & 0x7fffffff = 0x4932b42c`
