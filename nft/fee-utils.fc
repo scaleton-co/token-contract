@@ -1,15 +1,9 @@
 {-
-  {-
-    Note, currently we use fwd_fee of incoming send_tokens message as upper bound of
-    sending message fee.
-    It is cheap and cover all current use-cases when all actors are in one chain (basechain).
-    However in principle, it is possible, that some token holders will be in other chains.
-    In that case there are two solutions:
-      1) use more expensive but universal function below to calculate message fee for arbitrary destination
-      2) use token holder proxies in target chain (that way even 'non-universal' token can be used from any chain)
-  -}
-  ;; See crypto/block/transaction.cpp:L1499
-  int msg_fwd_fee(slice destination, cell message_body, cell init_state, int max_viewed_cells) inline {
+Forward fee calculation supporting different workchains
+-}
+
+;; See crypto/block/transaction.cpp:L1499
+int msg_fwd_fee(slice destination, cell message_body, cell init_state, int max_viewed_cells) inline {
     (int wc, _) = parse_std_addr(destination);
     throw_unless(107, (workchain == -1) | (workchain == 0) );
     int config_index = 25 + workchain;
@@ -25,6 +19,5 @@
     is_cells -= 1;
     is_bits -= init_state.slice_bits();
     return lump_price + (((bits + is_bits) * bit_price + (cells + is_cells) * cell_price + 65535) >> 16 );
-  }
+}
 
--}

@@ -2,7 +2,7 @@
 ;;  TON NFT Item Smart Contract
 ;;
 
-int min_gas_for_storage() asm "50000000 PUSHINT";
+int min_tons_for_storage() asm "50000000 PUSHINT"; ;; 0.05 TON
 
 ;;
 ;;  Storage
@@ -70,7 +70,7 @@ int min_gas_for_storage() asm "50000000 PUSHINT";
     in_msg_body~load_int(1); ;; this nft don't use custom_payload
     int forward_amount = in_msg_body~load_coins();
 
-    int rest_amount = my_balance - min_gas_for_storage() - forward_amount - fwd_fees * 2;
+    int rest_amount = my_balance - min_tons_for_storage() - forward_amount - fwd_fees * 2;
     throw_unless(402, rest_amount > 0); ;; base nft spends fixed amount of gas, will not check for response
 
     if (forward_amount) {

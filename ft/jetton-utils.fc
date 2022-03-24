@@ -1,22 +1,22 @@
-cell pack_wallet_data (int balance, slice owner, slice jetton_master, cell jetton_wallet_code) inline {
+cell pack_jetton_wallet_data (int balance, slice owner_address, slice jetton_master_address, cell jetton_wallet_code) inline {
    return  begin_cell()
             .store_coins(balance)
-            .store_slice(owner)
-            .store_slice(jetton_master)
+            .store_slice(owner_address)
+            .store_slice(jetton_master_address)
             .store_ref(jetton_wallet_code)
            .end_cell();
 }
 
-cell calculate_token_state_init (slice owner, slice jetton_master, cell jetton_wallet_code) inline {
+cell calculate_jetton_wallet_state_init (slice owner_address, slice jetton_master_address, cell jetton_wallet_code) inline {
   return begin_cell()
-          .store_uint(0,2)
+          .store_uint(0, 2)
           .store_dict(jetton_wallet_code)
-          .store_dict(pack_wallet_data(0, owner, jetton_master, jetton_wallet_code))
-          .store_uint(0,1)
+          .store_dict(pack_jetton_wallet_data(0, owner_address, jetton_master_address, jetton_wallet_code))
+          .store_uint(0, 1)
          .end_cell();
 }
 
-slice calc_address(cell state_init) inline {
+slice calculate_jetton_wallet_address(cell state_init) inline {
   return begin_cell().store_uint(4, 3)
                      .store_int(workchain(), 8)
                      .store_uint(cell_hash(state_init), 256)
@@ -24,7 +24,7 @@ slice calc_address(cell state_init) inline {
                      .begin_parse();
 }
 
-slice calc_user_wallet (slice owner, slice jetton_master, cell jetton_wallet_code) inline {
-  return calc_address(calculate_token_state_init(owner, jetton_master, jetton_wallet_code));
+slice calculate_user_jetton_wallet_address (slice owner_address, slice jetton_master_address, cell jetton_wallet_code) inline {
+  return calculate_jetton_wallet_address(calculate_jetton_wallet_state_init(owner_address, jetton_master_address, jetton_wallet_code));
 }
 
