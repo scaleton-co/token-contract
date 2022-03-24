@@ -1,6 +1,7 @@
 "Asm.fif" include
-// automatically generated from `../stdlib.fc` `op-codes.fc` `jetton-wallet-utils.fc` `jetton-minter.fc` 
+// automatically generated from `../stdlib.fc` `params.fc` `op-codes.fc` `jetton-wallet-utils.fc` `jetton-minter.fc` 
 PROGRAM{
+  DECLPROC force_chain
   DECLPROC pack_wallet_data
   DECLPROC calculate_token_state_init
   DECLPROC calc_address
@@ -10,6 +11,14 @@ PROGRAM{
   DECLPROC mint_tokens
   DECLPROC recv_internal
   106029 DECLMETHOD get_jetton_data
+  force_chain PROC:<{
+    //  addr
+    REWRITESTDADDR	//  _8 _9
+    DROP	//  wc
+    0 PUSHINT	//  wc _5
+    EQUAL	//  _6
+    333 THROWIFNOT
+  }>
   pack_wallet_data PROC:<{
     //  balance owner jetton_master token_wallet_code
     NEWC	//  balance owner jetton_master token_wallet_code _4

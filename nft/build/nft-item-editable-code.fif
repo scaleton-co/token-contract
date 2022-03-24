@@ -11,7 +11,7 @@ PROGRAM{
   102351 DECLMETHOD get_nft_data
   90228 DECLMETHOD get_editor
   force_chain PROC:<{
-    //  adr
+    //  addr
     REWRITESTDADDR	//  _8 _9
     DROP	//  wc
     0 PUSHINT	//  wc _5

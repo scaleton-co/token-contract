@@ -14,7 +14,7 @@ PROGRAM{
   85719 DECLMETHOD royalty_params
   68445 DECLMETHOD get_nft_content
   force_chain PROC:<{
-    //  adr
+    //  addr
     REWRITESTDADDR	//  _8 _9
     DROP	//  wc
     0 PUSHINT	//  wc _5
