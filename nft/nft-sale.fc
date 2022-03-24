@@ -69,7 +69,7 @@ int min_gas_amount() asm "1000000000 PUSHINT";
            .store_slice(nft_address)
            .store_coins(0)
            .store_uint(0, 1 + 4 + 4 + 64 + 32 + 1 + 1)
-           .store_uint(op:transfer(), 32)
+           .store_uint(op::transfer(), 32)
            .store_uint(query_id, 64)
            .store_slice(sender_address) ;; new_owner_address
            .store_slice(sender_address) ;; response_address
@@ -103,7 +103,7 @@ int min_gas_amount() asm "1000000000 PUSHINT";
 
       throw_unless(500, equal_slices(sender_address, nft_address));
       int op = in_msg_body~load_uint(32);
-      throw_unless(501, op == op:ownership_assigned());
+      throw_unless(501, op == op::ownership_assigned());
       int query_id = in_msg_body~load_uint(64);
       slice prev_owner_address = in_msg_body~load_msg_addr();
 
@@ -141,7 +141,7 @@ int min_gas_amount() asm "1000000000 PUSHINT";
            .store_slice(nft_address)
            .store_coins(0)
            .store_uint(0, 1 + 4 + 4 + 64 + 32 + 1 + 1)
-           .store_uint(op:transfer(), 32)
+           .store_uint(op::transfer(), 32)
            .store_uint(query_id, 64) 
            .store_slice(nft_owner_address) ;; new_owner_address
            .store_slice(nft_owner_address) ;; response_address;
