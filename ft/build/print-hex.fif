@@ -9,5 +9,5 @@
 
 ."jetton-wallet:" cr
 
-"ft.fif" include
+"jetton-wallet.fif" include
 2 boc+>B dup Bx. cr

@@ -1,5 +1,5 @@
 "Asm.fif" include
-// automatically generated from `../stdlib.fc` `op_codes.fc` `jetton_wallet_utils.fc` `minter.fc` 
+// automatically generated from `../stdlib.fc` `op-codes.fc` `jetton-wallet-utils.fc` `jetton-minter.fc` 
 PROGRAM{
   DECLPROC pack_wallet_data
   DECLPROC calculate_token_state_init

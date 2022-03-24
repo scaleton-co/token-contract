@@ -3,12 +3,12 @@
 "Asm.fif" include
 
 
-"ft_code.boc" file>B B>boc =: ft_code
+"jetton-wallet.boc" file>B B>boc =: ft_code
 
 <{
   SETCP0 ACCEPT
   now PUSHINT
-  "wton.fif" include PUSHREF SETCODE
+  "jetton-minter.fif" include PUSHREF SETCODE
 }>s =: contract_code
 
 <b b> =: contract_storage
