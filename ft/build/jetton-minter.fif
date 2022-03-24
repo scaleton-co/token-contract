@@ -1,5 +1,5 @@
 "Asm.fif" include
-// automatically generated from `../stdlib.fc` `params.fc` `op-codes.fc` `jetton-wallet-utils.fc` `jetton-minter.fc` 
+// automatically generated from `../stdlib.fc` `params.fc` `op-codes.fc` `jetton-utils.fc` `jetton-minter.fc` 
 PROGRAM{
   DECLPROC force_chain
   DECLPROC pack_wallet_data
@@ -20,27 +20,27 @@ PROGRAM{
     333 THROWIFNOT
   }>
   pack_wallet_data PROC:<{
-    //  balance owner jetton_master token_wallet_code
-    NEWC	//  balance owner jetton_master token_wallet_code _4
-    s0 s4 XCHG2	//  token_wallet_code owner jetton_master _4 balance
-    STVARUINT16	//  token_wallet_code owner jetton_master _5
-    ROT	//  token_wallet_code jetton_master _5 owner
-    STSLICER	//  token_wallet_code jetton_master _6
-    SWAP	//  token_wallet_code _6 jetton_master
-    STSLICER	//  token_wallet_code _7
+    //  balance owner jetton_master jetton_wallet_code
+    NEWC	//  balance owner jetton_master jetton_wallet_code _4
+    s0 s4 XCHG2	//  jetton_wallet_code owner jetton_master _4 balance
+    STVARUINT16	//  jetton_wallet_code owner jetton_master _5
+    ROT	//  jetton_wallet_code jetton_master _5 owner
+    STSLICER	//  jetton_wallet_code jetton_master _6
+    SWAP	//  jetton_wallet_code _6 jetton_master
+    STSLICER	//  jetton_wallet_code _7
     STREF	//  _8
     ENDC	//  _9
   }>
   calculate_token_state_init PROC:<{
-    //  owner jetton_master token_wallet_code
-    0 PUSHINT	//  owner jetton_master token_wallet_code _3=0
+    //  owner jetton_master jetton_wallet_code
+    0 PUSHINT	//  owner jetton_master jetton_wallet_code _3=0
     s0 s1 s2 XCPUXC
-    s4 s0 s3 XC2PU	//  _3=0 token_wallet_code _4=0 owner jetton_master token_wallet_code
-    pack_wallet_data INLINECALLDICT	//  _3=0 token_wallet_code _5
-    s2 PUSH	//  _3=0 token_wallet_code _5 _6=0
-    NEWC	//  _3=0 token_wallet_code _5 _6=0 _7
-    2 STU	//  _3=0 token_wallet_code _5 _9
-    s1 s2 XCHG	//  _3=0 _5 token_wallet_code _9
+    s4 s0 s3 XC2PU	//  _3=0 jetton_wallet_code _4=0 owner jetton_master jetton_wallet_code
+    pack_wallet_data INLINECALLDICT	//  _3=0 jetton_wallet_code _5
+    s2 PUSH	//  _3=0 jetton_wallet_code _5 _6=0
+    NEWC	//  _3=0 jetton_wallet_code _5 _6=0 _7
+    2 STU	//  _3=0 jetton_wallet_code _5 _9
+    s1 s2 XCHG	//  _3=0 _5 jetton_wallet_code _9
     STDICT	//  _3=0 _5 _10
     STDICT	//  _3=0 _11
     1 STU	//  _13
@@ -59,7 +59,7 @@ PROGRAM{
     CTOS	//  _12
   }>
   calc_user_wallet PROC:<{
-    //  owner jetton_master token_wallet_code
+    //  owner jetton_master jetton_wallet_code
     calculate_token_state_init INLINECALLDICT	//  _3
     calc_address INLINECALLDICT	//  _4
   }>
@@ -74,21 +74,21 @@ PROGRAM{
     DROP	//  _3 _5 _7 _9
   }>
   save_data PROC:<{
-    //  total_supply admin_address content token_wallet_code
-    NEWC	//  total_supply admin_address content token_wallet_code _4
-    s0 s4 XCHG2	//  token_wallet_code admin_address content _4 total_supply
-    STVARUINT16	//  token_wallet_code admin_address content _5
-    ROT	//  token_wallet_code content _5 admin_address
-    STSLICER	//  token_wallet_code content _6
-    STREF	//  token_wallet_code _7
+    //  total_supply admin_address content jetton_wallet_code
+    NEWC	//  total_supply admin_address content jetton_wallet_code _4
+    s0 s4 XCHG2	//  jetton_wallet_code admin_address content _4 total_supply
+    STVARUINT16	//  jetton_wallet_code admin_address content _5
+    ROT	//  jetton_wallet_code content _5 admin_address
+    STSLICER	//  jetton_wallet_code content _6
+    STREF	//  jetton_wallet_code _7
     STREF	//  _8
     ENDC	//  _9
     c4 POP
   }>
   mint_tokens PROC:<{
-    //  to_address token_amount token_wallet_code amount query_id
-    MYADDR	//  to_address token_amount token_wallet_code amount query_id _6
-    s5 s0 s3 XCHG3	//  amount token_amount query_id to_address _6 token_wallet_code
+    //  to_address token_amount jetton_wallet_code amount query_id
+    MYADDR	//  to_address token_amount jetton_wallet_code amount query_id _6
+    s5 s0 s3 XCHG3	//  amount token_amount query_id to_address _6 jetton_wallet_code
     calculate_token_state_init INLINECALLDICT	//  amount token_amount query_id state_init
     DUP	//  amount token_amount query_id state_init state_init
     calc_address INLINECALLDICT	//  amount token_amount query_id state_init to_wallet_address
@@ -143,56 +143,56 @@ PROGRAM{
     SWAP	//  sender_address in_msg_body
     32 LDU	//  sender_address op in_msg_body
     64 LDU	//  sender_address op query_id in_msg_body
-    load_data INLINECALLDICT	//  sender_address op query_id in_msg_body total_supply admin_address content token_wallet_code
-    21 PUSHINT	//  sender_address op query_id in_msg_body total_supply admin_address content token_wallet_code _28
-    s7 s(-1) PUXC	//  sender_address op query_id in_msg_body total_supply admin_address content token_wallet_code op _28
-    EQUAL	//  sender_address op query_id in_msg_body total_supply admin_address content token_wallet_code _29
-    IFJMP:<{	//  sender_address op query_id in_msg_body total_supply admin_address content token_wallet_code
-      s6 POP	//  sender_address token_wallet_code query_id in_msg_body total_supply admin_address content
-      s6 s1 XCPU	//  content token_wallet_code query_id in_msg_body total_supply admin_address sender_address admin_address
-      SDEQ	//  content token_wallet_code query_id in_msg_body total_supply admin_address _31
+    load_data INLINECALLDICT	//  sender_address op query_id in_msg_body total_supply admin_address content jetton_wallet_code
+    21 PUSHINT	//  sender_address op query_id in_msg_body total_supply admin_address content jetton_wallet_code _28
+    s7 s(-1) PUXC	//  sender_address op query_id in_msg_body total_supply admin_address content jetton_wallet_code op _28
+    EQUAL	//  sender_address op query_id in_msg_body total_supply admin_address content jetton_wallet_code _29
+    IFJMP:<{	//  sender_address op query_id in_msg_body total_supply admin_address content jetton_wallet_code
+      s6 POP	//  sender_address jetton_wallet_code query_id in_msg_body total_supply admin_address content
+      s6 s1 XCPU	//  content jetton_wallet_code query_id in_msg_body total_supply admin_address sender_address admin_address
+      SDEQ	//  content jetton_wallet_code query_id in_msg_body total_supply admin_address _31
       73 THROWIFNOT
-      s0 s2 XCHG	//  content token_wallet_code query_id admin_address total_supply in_msg_body
-      LDVARUINT16	//  content token_wallet_code query_id admin_address total_supply token_amount in_msg_body
-      LDMSGADDR	//  content token_wallet_code query_id admin_address total_supply token_amount to_address in_msg_body
-      LDVARUINT16	//  content token_wallet_code query_id admin_address total_supply token_amount to_address _79 _78
-      DROP	//  content token_wallet_code query_id admin_address total_supply token_amount to_address amount
+      s0 s2 XCHG	//  content jetton_wallet_code query_id admin_address total_supply in_msg_body
+      LDVARUINT16	//  content jetton_wallet_code query_id admin_address total_supply token_amount in_msg_body
+      LDMSGADDR	//  content jetton_wallet_code query_id admin_address total_supply token_amount to_address in_msg_body
+      LDVARUINT16	//  content jetton_wallet_code query_id admin_address total_supply token_amount to_address _79 _78
+      DROP	//  content jetton_wallet_code query_id admin_address total_supply token_amount to_address amount
       s2 s0 s1 XC2PU
-      s7 s(-1) s6 PUXC2	//  content token_wallet_code token_amount admin_address total_supply to_address token_amount token_wallet_code amount query_id
+      s7 s(-1) s6 PUXC2	//  content jetton_wallet_code token_amount admin_address total_supply to_address token_amount jetton_wallet_code amount query_id
       mint_tokens CALLDICT
-      ROT	//  content token_wallet_code admin_address total_supply token_amount
-      ADD	//  content token_wallet_code admin_address _43
-      s1 s3 s3 XCHG3	//  _43 admin_address content token_wallet_code
+      ROT	//  content jetton_wallet_code admin_address total_supply token_amount
+      ADD	//  content jetton_wallet_code admin_address _43
+      s1 s3 s3 XCHG3	//  _43 admin_address content jetton_wallet_code
       save_data INLINECALLDICT
-    }>	//  sender_address op query_id in_msg_body total_supply admin_address content token_wallet_code
-    s5 POP	//  sender_address op token_wallet_code in_msg_body total_supply admin_address content
-    0x7bdd97de PUSHINT	//  sender_address op token_wallet_code in_msg_body total_supply admin_address content _45
-    s1 s6 XCHG	//  sender_address content token_wallet_code in_msg_body total_supply admin_address op _45
-    EQUAL	//  sender_address content token_wallet_code in_msg_body total_supply admin_address _46
-    IFJMP:<{	//  sender_address content token_wallet_code in_msg_body total_supply admin_address
-      s0 s2 XCHG	//  sender_address content token_wallet_code admin_address total_supply in_msg_body
-      LDVARUINT16	//  sender_address content token_wallet_code admin_address total_supply token_amount in_msg_body
-      LDMSGADDR	//  sender_address content token_wallet_code admin_address total_supply token_amount _83 _82
-      DROP	//  sender_address content token_wallet_code admin_address total_supply token_amount from_address
-      MYADDR	//  sender_address content token_wallet_code admin_address total_supply token_amount from_address _54
-      s5 PUSH	//  sender_address content token_wallet_code admin_address total_supply token_amount from_address _54 token_wallet_code
-      calc_user_wallet INLINECALLDICT	//  sender_address content token_wallet_code admin_address total_supply token_amount _55
-      s0 s6 XCHG2	//  token_amount content token_wallet_code admin_address total_supply _55 sender_address
-      SDEQ	//  token_amount content token_wallet_code admin_address total_supply _56
+    }>	//  sender_address op query_id in_msg_body total_supply admin_address content jetton_wallet_code
+    s5 POP	//  sender_address op jetton_wallet_code in_msg_body total_supply admin_address content
+    0x7bdd97de PUSHINT	//  sender_address op jetton_wallet_code in_msg_body total_supply admin_address content _45
+    s1 s6 XCHG	//  sender_address content jetton_wallet_code in_msg_body total_supply admin_address op _45
+    EQUAL	//  sender_address content jetton_wallet_code in_msg_body total_supply admin_address _46
+    IFJMP:<{	//  sender_address content jetton_wallet_code in_msg_body total_supply admin_address
+      s0 s2 XCHG	//  sender_address content jetton_wallet_code admin_address total_supply in_msg_body
+      LDVARUINT16	//  sender_address content jetton_wallet_code admin_address total_supply token_amount in_msg_body
+      LDMSGADDR	//  sender_address content jetton_wallet_code admin_address total_supply token_amount _83 _82
+      DROP	//  sender_address content jetton_wallet_code admin_address total_supply token_amount from_address
+      MYADDR	//  sender_address content jetton_wallet_code admin_address total_supply token_amount from_address _54
+      s5 PUSH	//  sender_address content jetton_wallet_code admin_address total_supply token_amount from_address _54 jetton_wallet_code
+      calc_user_wallet INLINECALLDICT	//  sender_address content jetton_wallet_code admin_address total_supply token_amount _55
+      s0 s6 XCHG2	//  token_amount content jetton_wallet_code admin_address total_supply _55 sender_address
+      SDEQ	//  token_amount content jetton_wallet_code admin_address total_supply _56
       707 THROWIFNOT
-      s0 s4 XCHG2	//  admin_address content token_wallet_code total_supply token_amount
-      SUB	//  admin_address content token_wallet_code _58
-      3 -ROLL	//  _58 admin_address content token_wallet_code
+      s0 s4 XCHG2	//  admin_address content jetton_wallet_code total_supply token_amount
+      SUB	//  admin_address content jetton_wallet_code _58
+      3 -ROLL	//  _58 admin_address content jetton_wallet_code
       save_data INLINECALLDICT
-    }>	//  sender_address content token_wallet_code in_msg_body total_supply admin_address
+    }>	//  sender_address content jetton_wallet_code in_msg_body total_supply admin_address
     6 BLKDROP	// 
     16 PUSHPOW2DEC	//  _60=65535
     THROWANY
   }>
   get_jetton_data PROC:<{
     // 
-    load_data INLINECALLDICT	//  total_supply admin_address content token_wallet_code
-    -1 PUSHINT	//  total_supply admin_address content token_wallet_code _5=-1
-    3 -ROLL	//  total_supply _5=-1 admin_address content token_wallet_code
+    load_data INLINECALLDICT	//  total_supply admin_address content jetton_wallet_code
+    -1 PUSHINT	//  total_supply admin_address content jetton_wallet_code _5=-1
+    3 -ROLL	//  total_supply _5=-1 admin_address content jetton_wallet_code
   }>
 }END>c
