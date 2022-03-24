@@ -2,10 +2,6 @@
 ;;  TON NFT Item Smart Contract
 ;;
 
-int equal_slices (slice a, slice b) asm "SDEQ";
-int builder_null?(builder b) asm "ISNULL";
-builder store_builder(builder to, builder from) asm "STBR";
-
 int min_gas_for_storage() asm "50000000 PUSHINT";
 
 ;;

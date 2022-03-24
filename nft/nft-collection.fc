@@ -1,7 +1,5 @@
 ;; NFT collection smart contract
 
-int equal_slices (slice a, slice b) asm "SDEQ";
-
 ;; storage scheme
 ;; default#_ royalty_factor:uint16 royalty_base:uint16 royalty_address:MsgAddress = RoyaltyParams;
 ;; storage#_ owner_address:MsgAddress next_item_index:uint64

@@ -1,5 +1,5 @@
 "Asm.fif" include
-// automatically generated from `../nft/stdlib.fc` `op_codes.fc` `jetton_wallet_utils.fc` `minter.fc` 
+// automatically generated from `../stdlib.fc` `op_codes.fc` `jetton_wallet_utils.fc` `minter.fc` 
 PROGRAM{
   DECLPROC pack_wallet_data
   DECLPROC calculate_token_state_init
@@ -85,7 +85,7 @@ PROGRAM{
     calc_address INLINECALLDICT	//  amount token_amount query_id state_init to_wallet_address
     0 PUSHINT	//  amount token_amount query_id state_init to_wallet_address _11=0
     DUP	//  amount token_amount query_id state_init to_wallet_address _11=0 _12=0
-    14 PUSHINT	//  amount token_amount query_id state_init to_wallet_address _11=0 _12=0 _13
+    0x4932b42c PUSHINT	//  amount token_amount query_id state_init to_wallet_address _11=0 _12=0 _13
     6 PUSHINT	//  amount token_amount query_id state_init to_wallet_address _11=0 _12=0 _13 _18
     24 PUSHINT	//  amount token_amount query_id state_init to_wallet_address _11=0 _12=0 _13 _18 _19=24
     NEWC	//  amount token_amount query_id state_init to_wallet_address _11=0 _12=0 _13 _18 _19=24 _20
@@ -157,7 +157,7 @@ PROGRAM{
       save_data INLINECALLDICT
     }>	//  sender_address op query_id in_msg_body total_supply admin_address content token_wallet_code
     s5 POP	//  sender_address op token_wallet_code in_msg_body total_supply admin_address content
-    18 PUSHINT	//  sender_address op token_wallet_code in_msg_body total_supply admin_address content _45
+    0x7bdd97de PUSHINT	//  sender_address op token_wallet_code in_msg_body total_supply admin_address content _45
     s1 s6 XCHG	//  sender_address content token_wallet_code in_msg_body total_supply admin_address op _45
     EQUAL	//  sender_address content token_wallet_code in_msg_body total_supply admin_address _46
     IFJMP:<{	//  sender_address content token_wallet_code in_msg_body total_supply admin_address

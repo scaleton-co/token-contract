@@ -1,5 +1,5 @@
 "Asm.fif" include
-// automatically generated from `stdlib.fc` `op-codes.fc` `nft-sale.fc` 
+// automatically generated from `../stdlib.fc` `op-codes.fc` `nft-sale.fc` 
 PROGRAM{
   DECLPROC load_data
   DECLPROC load_fees

@@ -1,5 +1,5 @@
 "Asm.fif" include
-// automatically generated from `stdlib.fc` `params.fc` `op-codes.fc` `nft-item-editable-DRAFT.fc` 
+// automatically generated from `../stdlib.fc` `params.fc` `op-codes.fc` `nft-item-editable-DRAFT.fc` 
 PROGRAM{
   DECLPROC force_chain
   DECLPROC load_data

@@ -1,5 +1,5 @@
 "Asm.fif" include
-// automatically generated from `../nft/stdlib.fc` `op_codes.fc` `jetton_wallet_utils.fc` `wrapped_ton.fc` 
+// automatically generated from `../stdlib.fc` `op_codes.fc` `jetton_wallet_utils.fc` `wrapped_ton.fc` 
 PROGRAM{
   DECLPROC pack_wallet_data
   DECLPROC calculate_token_state_init
@@ -62,7 +62,7 @@ PROGRAM{
     DUP	//  amount state_init state_init
     calc_address INLINECALLDICT	//  amount state_init to_wallet
     LTIME	//  amount state_init to_wallet _9
-    14 PUSHINT	//  amount state_init to_wallet _9 _10
+    0x4932b42c PUSHINT	//  amount state_init to_wallet _9 _10
     6 PUSHINT	//  amount state_init to_wallet _9 _10 _15
     24 PUSHINT	//  amount state_init to_wallet _9 _10 _15 _16=24
     NEWC	//  amount state_init to_wallet _9 _10 _15 _16=24 _17
@@ -142,7 +142,7 @@ PROGRAM{
       mint_wtons CALLDICT
     }>	//  msg_value sender op in_msg
     s3 POP	//  in_msg sender op
-    18 PUSHINT	//  in_msg sender op _23
+    0x7bdd97de PUSHINT	//  in_msg sender op _23
     EQUAL	//  in_msg sender _24
     IFJMP:<{	//  in_msg sender
       release_tons CALLDICT

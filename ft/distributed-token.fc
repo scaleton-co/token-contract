@@ -1,5 +1,4 @@
 
-int equal_slices (slice s1, slice s2) asm "SDEQ";
 int min_tons_for_storage() asm "10000000 PUSHINT";
 int gas_consumption() asm "10000000 PUSHINT";
 
@@ -206,7 +205,7 @@ int gas_consumption() asm "10000000 PUSHINT";
   in_msg~skip_bits(32); ;; 0xFFFFFFFF
   (int balance, slice owner, slice jetton_master, cell token_wallet_code) = load_data();
   int op = in_msg~load_uint(32);
-  throw_unless(709, (op == op::inner_transfer()) | (op == op::burn_notification()));
+  throw_unless(709, (op == op::internal_transfer()) | (op == op::burn_notification()));
   int op = in_msg~load_uint(64);
   int value = in_msg~load_coins();
   balance += value;

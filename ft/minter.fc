@@ -1,5 +1,3 @@
-int equal_slices (slice s1, slice s2) asm "SDEQ";
-
 {-
   storage#_ total_supply:Coins admin_address:MsgAddress content:^Cell token_wallet_code:^Cell = Storage;
 -}
