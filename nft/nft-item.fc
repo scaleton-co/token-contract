@@ -2,6 +2,18 @@
 ;;  TON NFT Item Smart Contract
 ;;
 
+{-
+
+    NOTE that this tokens can be transferred within the same workchain.
+
+    This is suitable for most tokens, if you need tokens transferable between workchains there are two solutions:
+
+    1) use more expensive but universal function below to calculate message forward fee for arbitrary destination (see `misc/forward-fee-calc.cs`)
+
+    2) use token holder proxies in target workchain (that way even 'non-universal' token can be used from any workchain)
+
+-}
+
 int min_tons_for_storage() asm "50000000 PUSHINT"; ;; 0.05 TON
 
 ;;
@@ -52,16 +64,6 @@ int min_tons_for_storage() asm "50000000 PUSHINT"; ;; 0.05 TON
 
 () transfer_ownership(int my_balance, int index, slice collection_address, slice owner_address, cell content, slice sender_address, int query_id, slice in_msg_body, int fwd_fees) impure inline {
     throw_unless(401, equal_slices(sender_address, owner_address));
-
-    {-
-      Note, currently we use fwd_fee of incoming transfer message as upper bound of
-      sending message fee.
-      It is cheap and cover all current use-cases when all actors are in one chain (basechain).
-      However in principle, it is possible, that some token holders will be in other chains.
-      In that case there are two solutions:
-        1) use more expensive but universal function from fee-utils to calculate message fee for arbitrary destination
-        2) use token holder proxies in target chain (that way even 'non-universal' token can be used from any chain)
-    -}
 
     slice new_owner_address = in_msg_body~load_msg_addr();
     force_chain(new_owner_address);
