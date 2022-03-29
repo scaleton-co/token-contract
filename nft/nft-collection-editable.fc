@@ -79,10 +79,10 @@ slice calculate_nft_item_address(int wc, cell state_init) {
     }
     slice sender_address = cs~load_msg_addr();
 
-    var (owner_address, next_item_index, content, nft_item_code, royalty_params) = load_data();
-
     int op = in_msg_body~load_uint(32);
     int query_id = in_msg_body~load_uint(64);
+
+    var (owner_address, next_item_index, content, nft_item_code, royalty_params) = load_data();
 
     if (op == op::get_royalty_params()) {
         send_royalty_params(sender_address, query_id, royalty_params.begin_parse());
