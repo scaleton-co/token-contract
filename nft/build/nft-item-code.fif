@@ -92,36 +92,34 @@ PROGRAM{
     OVER	//  my_balance index collection_address owner_address content fwd_fees query_id new_owner_address in_msg_body new_owner_address
     force_chain CALLDICT
     LDMSGADDR	//  my_balance index collection_address owner_address content fwd_fees query_id new_owner_address response_destination in_msg_body
-    OVER	//  my_balance index collection_address owner_address content fwd_fees query_id new_owner_address response_destination in_msg_body response_destination
-    force_chain CALLDICT
     1 LDI	//  my_balance index collection_address owner_address content fwd_fees query_id new_owner_address response_destination _57 _56
     NIP	//  my_balance index collection_address owner_address content fwd_fees query_id new_owner_address response_destination in_msg_body
     LDVARUINT16	//  my_balance index collection_address owner_address content fwd_fees query_id new_owner_address response_destination forward_amount in_msg_body
-    50000000 PUSHINT	//  my_balance index collection_address owner_address content fwd_fees query_id new_owner_address response_destination forward_amount in_msg_body _27
-    s1 s11 XCHG	//  in_msg_body index collection_address owner_address content fwd_fees query_id new_owner_address response_destination forward_amount my_balance _27
+    50000000 PUSHINT	//  my_balance index collection_address owner_address content fwd_fees query_id new_owner_address response_destination forward_amount in_msg_body _26
+    s1 s11 XCHG	//  in_msg_body index collection_address owner_address content fwd_fees query_id new_owner_address response_destination forward_amount my_balance _26
+    SUB	//  in_msg_body index collection_address owner_address content fwd_fees query_id new_owner_address response_destination forward_amount _27
+    OVER	//  in_msg_body index collection_address owner_address content fwd_fees query_id new_owner_address response_destination forward_amount _27 forward_amount
     SUB	//  in_msg_body index collection_address owner_address content fwd_fees query_id new_owner_address response_destination forward_amount _28
-    OVER	//  in_msg_body index collection_address owner_address content fwd_fees query_id new_owner_address response_destination forward_amount _28 forward_amount
-    SUB	//  in_msg_body index collection_address owner_address content fwd_fees query_id new_owner_address response_destination forward_amount _29
-    s0 s5 XCHG	//  in_msg_body index collection_address owner_address content _29 query_id new_owner_address response_destination forward_amount fwd_fees
-    1 LSHIFT#	//  in_msg_body index collection_address owner_address content _29 query_id new_owner_address response_destination forward_amount _31
-    s1 s5 XCHG	//  in_msg_body index collection_address owner_address content forward_amount query_id new_owner_address response_destination _29 _31
+    s0 s5 XCHG	//  in_msg_body index collection_address owner_address content _28 query_id new_owner_address response_destination forward_amount fwd_fees
+    1 LSHIFT#	//  in_msg_body index collection_address owner_address content _28 query_id new_owner_address response_destination forward_amount _30
+    s1 s5 XCHG	//  in_msg_body index collection_address owner_address content forward_amount query_id new_owner_address response_destination _28 _30
     SUB	//  in_msg_body index collection_address owner_address content forward_amount query_id new_owner_address response_destination rest_amount
     DUP	//  in_msg_body index collection_address owner_address content forward_amount query_id new_owner_address response_destination rest_amount rest_amount
-    0 GTINT	//  in_msg_body index collection_address owner_address content forward_amount query_id new_owner_address response_destination rest_amount _35
+    0 GTINT	//  in_msg_body index collection_address owner_address content forward_amount query_id new_owner_address response_destination rest_amount _34
     402 THROWIFNOT
     s4 PUSH	//  in_msg_body index collection_address owner_address content forward_amount query_id new_owner_address response_destination rest_amount forward_amount
     IF:<{	//  in_msg_body index collection_address owner_address content forward_amount query_id new_owner_address response_destination rest_amount
-      0x05138d91 PUSHINT	//  in_msg_body index collection_address owner_address content forward_amount query_id new_owner_address response_destination rest_amount _37
-      NEWC	//  in_msg_body index collection_address owner_address content forward_amount query_id new_owner_address response_destination rest_amount _37 _38
-      s0 s8 XCHG2	//  in_msg_body index collection_address _37 content forward_amount query_id new_owner_address response_destination rest_amount _38 owner_address
-      STSLICER	//  in_msg_body index collection_address _37 content forward_amount query_id new_owner_address response_destination rest_amount _39
-      s0 s10 XCHG2	//  rest_amount index collection_address _37 content forward_amount query_id new_owner_address response_destination _39 in_msg_body
-      STSLICER	//  rest_amount index collection_address _37 content forward_amount query_id new_owner_address response_destination _40
-      1 PUSHINT	//  rest_amount index collection_address _37 content forward_amount query_id new_owner_address response_destination _40 _41=1
+      0x05138d91 PUSHINT	//  in_msg_body index collection_address owner_address content forward_amount query_id new_owner_address response_destination rest_amount _36
+      NEWC	//  in_msg_body index collection_address owner_address content forward_amount query_id new_owner_address response_destination rest_amount _36 _37
+      s0 s8 XCHG2	//  in_msg_body index collection_address _36 content forward_amount query_id new_owner_address response_destination rest_amount _37 owner_address
+      STSLICER	//  in_msg_body index collection_address _36 content forward_amount query_id new_owner_address response_destination rest_amount _38
+      s0 s10 XCHG2	//  rest_amount index collection_address _36 content forward_amount query_id new_owner_address response_destination _38 in_msg_body
+      STSLICER	//  rest_amount index collection_address _36 content forward_amount query_id new_owner_address response_destination _39
+      1 PUSHINT	//  rest_amount index collection_address _36 content forward_amount query_id new_owner_address response_destination _39 _40=1
       s3 s4 PUSH2
       s4 s7 XCHG
       s3 s9 XCHG
-      s9 s2 XCHG2	//  rest_amount index collection_address new_owner_address content response_destination query_id new_owner_address forward_amount _37 query_id _40 _41=1
+      s9 s2 XCHG2	//  rest_amount index collection_address new_owner_address content response_destination query_id new_owner_address forward_amount _36 query_id _39 _40=1
       send_msg INLINECALLDICT
       s1 s3 XCHG
       s1 s6 XCHG	//  new_owner_address index collection_address response_destination content rest_amount query_id
@@ -132,9 +130,11 @@ PROGRAM{
       DROP	//  new_owner_address index collection_address response_destination content rest_amount query_id
     }>
     s3 PUSH	//  new_owner_address index collection_address response_destination content rest_amount query_id response_destination
-    2 PLDU	//  new_owner_address index collection_address response_destination content rest_amount query_id _44
-    0 NEQINT	//  new_owner_address index collection_address response_destination content rest_amount query_id _46
+    2 PLDU	//  new_owner_address index collection_address response_destination content rest_amount query_id _43
+    0 NEQINT	//  new_owner_address index collection_address response_destination content rest_amount query_id _45
     IF:<{	//  new_owner_address index collection_address response_destination content rest_amount query_id
+      s3 PUSH	//  new_owner_address index collection_address response_destination content rest_amount query_id response_destination
+      force_chain CALLDICT
       0xd53276db PUSHINT	//  new_owner_address index collection_address response_destination content rest_amount query_id _47
       s3 s4 XCHG
       SWAP
