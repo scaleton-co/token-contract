@@ -107,9 +107,9 @@ int gas_consumption() asm "10000000 PUSHINT"; ;; 0.01 TON
   slice from_address = in_msg_body~load_msg_addr();
   slice response_address = in_msg_body~load_msg_addr();
   throw_unless(707,
-      equal_slices(calculate_user_jetton_wallet_address(from_address, jetton_master_address, jetton_wallet_code), sender_address)
-      |
       equal_slices(jetton_master_address, sender_address)
+      |
+      equal_slices(calculate_user_jetton_wallet_address(from_address, jetton_master_address, jetton_wallet_code), sender_address)
   );
   int forward_ton_amount = in_msg_body~load_coins();
 
@@ -214,12 +214,6 @@ int gas_consumption() asm "10000000 PUSHINT"; ;; 0.01 TON
   int fwd_fee = cs~load_coins(); ;; we use message fwd_fee for estimation of forward_payload costs
 
   int op = in_msg_body~load_uint(32);
-
-  if (op == op::master_request()) { ;; jetton master command
-    ;; master is trusted like it is an other wallet
-    receive_tokens(in_msg_body, sender_address);
-    return ();
-  }
 
   if (op == op::transfer()) { ;; outgoing transfer
     send_tokens(in_msg_body, sender_address, msg_value, fwd_fee);
