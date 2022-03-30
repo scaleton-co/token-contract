@@ -7,6 +7,6 @@ int op::get_royalty_params() asm "0x693d3950 PUSHINT";
 int op::report_royalty_params() asm "0xa8cb00ad PUSHINT";
 
 ;; NFTEditable
-int op::edit_content() asm "123 PUSHINT";
-int op::transfer_editorship() asm "124 PUSHINT";
+int op::edit_content() asm "0x1a0b9d51 PUSHINT";
+int op::transfer_editorship() asm "0x1c04412a PUSHINT";
 int op::editorship_assigned() asm "0x511a4463 PUSHINT";
