@@ -73,13 +73,21 @@ int min_tons_for_storage() asm "50000000 PUSHINT"; ;; 0.05 TON
     in_msg_body~load_int(1); ;; this nft don't use custom_payload
     int forward_amount = in_msg_body~load_coins();
 
-    int rest_amount = my_balance - min_tons_for_storage() - forward_amount - fwd_fees * 2;
-    throw_unless(402, rest_amount > 0); ;; base nft spends fixed amount of gas, will not check for response
+    int rest_amount = my_balance - min_tons_for_storage();
+    if (forward_amount) {
+      rest_amount -= (forward_amount + fwd_fees);
+    }
+    int need_response = response_destination.preload_uint(2) != 0; ;; if NOT addr_none: 00
+    if (need_response) {
+      rest_amount -= fwd_fees;
+    }
+
+    throw_unless(402, rest_amount >= 0); ;; base nft spends fixed amount of gas, will not check for response
 
     if (forward_amount) {
       send_msg(new_owner_address, forward_amount, op::ownership_assigned(), query_id, begin_cell().store_slice(owner_address).store_slice(in_msg_body), 1);  ;; paying fees, revert on errors
     }
-    if (response_destination.preload_uint(2) != 0) { ;; if NOT addr_none: 00
+    if (need_response) {
       force_chain(response_destination);
       send_msg(response_destination, rest_amount, op::excesses(), query_id, null(), 1); ;; paying fees, revert on errors
     }
@@ -96,13 +104,21 @@ int min_tons_for_storage() asm "50000000 PUSHINT"; ;; 0.05 TON
     in_msg_body~load_int(1); ;; this nft don't use custom_payload
     int forward_amount = in_msg_body~load_coins();
 
-    int rest_amount = my_balance - min_tons_for_storage() - forward_amount - 2 * fwd_fees;
-    throw_unless(402, rest_amount > 0); ;; base nft spends fixed amount of gas, will not check for response
+    int rest_amount = my_balance - min_tons_for_storage();
+    if (forward_amount) {
+      rest_amount -= (forward_amount + fwd_fees);
+    }
+    int need_response = response_destination.preload_uint(2) != 0; ;; if NOT addr_none: 00
+    if (need_response) {
+      rest_amount -= fwd_fees;
+    }
+
+    throw_unless(402, rest_amount >= 0); ;; base nft spends fixed amount of gas, will not check for response
 
     if (forward_amount) {
       send_msg(new_editor_address, forward_amount, op::editorship_assigned(), query_id, begin_cell().store_slice(editor_address).store_slice(in_msg_body), 1);  ;; paying fees, revert on errors
     }
-    if (response_destination.preload_uint(2) != 0) { ;; if NOT addr_none: 00
+    if (need_response) {
       force_chain(response_destination);
       send_msg(response_destination, rest_amount, op::excesses(), query_id, null(), 1); ;; paying fees, revert on errors
     }
