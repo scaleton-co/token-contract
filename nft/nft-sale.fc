@@ -1,6 +1,6 @@
 ;; NFT sale smart contract
 
-int min_gas_amount() asm "1000000000 PUSHINT";
+int min_gas_amount() asm "1000000000 PUSHINT"; ;; 1 TON
 
 (slice, slice, slice, int, cell) load_data() inline {
   var ds = get_data().begin_parse();
@@ -135,6 +135,7 @@ int min_gas_amount() asm "1000000000 PUSHINT";
 
     if (op == 3) { ;; cancel sale
          throw_unless(457, msg_value >= min_gas_amount());
+         throw_unless(458, equal_slices(sender_address, nft_owner_address) | equal_slices(sender_address, marketplace_address));
 
          var msg = begin_cell()
            .store_uint(0x10, 6) ;; nobounce
