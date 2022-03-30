@@ -1,23 +1,26 @@
 # Summary
 
-A standard interface for Jettons (fungible tokens).
+A standard interface for Jettons (TON fungible tokens).
 
 # Motivation
 
 A standard interface will greatly simplify interaction and display of different tokenized assets.
 
 Jetton standard describes:
-* The way of jetton transfers.
-* The way of retrieving common information (name, circulating supply, etc) about given Jetton asset.
 
+* The way of jetton transfers.
+
+* The way of retrieving common information (name, circulating supply, etc) about given Jetton asset.
 
 # Specification
 
 Here and following we use "Jetton" with capital `J` as designation for entirety of tokens of the same type, while "jetton" with `j` as designation of amount of tokens of some type.
 
-Jettons are organized as follows: each Jetton has master smart-contract which is used to mint new jettons, account for circulating supply and provide common information. At the same time information about amount of jettons owned by each user is stores in decentralized manner in individual (for each owner) smart-contracts called "jetton-wallets".
+Jettons are organized as follows: each Jetton has master smart-contract which is used to mint new jettons, account for circulating supply and provide common information. 
 
-Example: if you release a Jetton with circulating supply of 200 jetton which are ownerd by 3 people, then you will deploy 4 contracts: 1 Jetton-master and 3 jetton-wallets.
+At the same time information about amount of jettons owned by each user is stores in decentralized manner in individual (for each owner) smart-contracts called "jetton-wallets".
+
+Example: if you release a Jetton with circulating supply of 200 jetton which are owned by 3 people, then you will deploy 4 contracts: 1 Jetton-master and 3 jetton-wallets.
 
 ## Jetton wallet smart contract
 
@@ -40,11 +43,11 @@ transfer#f8a7ea5 query_id:uint64 amount:(VarUInteger 16) destination:MsgAddress
 
 `query_id` - arbitrary request number.
 
-`amount` - amount of transferred jettons in elementary units
+`amount` - amount of transferred jettons in elementary units.
 
 `destination` - address of the new owner of the jettons.
 
-`response_destination` - address where to send a response with confirmation of a successful transfer and the rest of the  incoming message coins.
+`response_destination` - address where to send a response with confirmation of a successful transfer and the rest of the incoming message Toncoins.
 
 `custom_payload` - optional custom data (which is used by either sender or receiver jetton wallet for inner logic).
 
@@ -141,12 +144,12 @@ burn#595f07bc query_id:uint64 amount:(VarUInteger 16)
 
 
 ### Get-methods
-1. `get_wallet_data()` returns `(int balance, slice owner, slice jetton, cell token_wallet_code)`
+1. `get_wallet_data()` returns `(int balance, slice owner, slice jetton, cell jetton_wallet_code)`
 
     `balance` - (uint256) amount of jettons on wallet.
     `owner` - (MsgAddress) address of wallet owner;
     `jetton` - (MsgAddress) address of Jetton master-address;
-    `token_wallet_code` - (cell) with code of this wallet;
+    `jetton_wallet_code` - (cell) with code of this wallet;
 
 
 
@@ -156,17 +159,25 @@ burn#595f07bc query_id:uint64 amount:(VarUInteger 16)
 
 ### Get-methods
 
-1. `get_jetton_data()` returns `(int supply, int mintable, slice controller, cell jetton_content, cell token_wallet_code)`
+1. `get_jetton_data()` returns `(int total_supply, int mintable, slice admin_address, cell jetton_content, cell jetton_wallet_code)`
 
-    `supply` - (integer) - the total number of issues jettons
+    `total_supply` - (integer) - the total number of issues jettons
 
     `mintable` - (-1/0) - flag which indicates whether number of jettons can increase
 
-    `controller` - (MsgAddressInt) - address of smart-contrac which control Jetton
+    `admin_address` - (MsgAddressInt) - address of smart-contrac which control Jetton
     
     `jetton_content` - cell - data in accordance to https://github.com/ton-blockchain/TIPs/issues/64
     
-    `token_wallet_code` - cell - code of wallet for that jetton
+    `jetton_wallet_code` - cell - code of wallet for that jetton
+
+2. `get_wallet_address(slice owner_address)` return `slice jetton_wallet_address`
+   
+    Returns jetton wallet address (MsgAddressInt) for this owner address (MsgAddressInt).
+
+# Implementation
+
+https://github.com/ton-blockchain/token-contract/tree/jettons/ft
 
 # TL-B schema
 
@@ -214,13 +225,7 @@ internal_transfer  query_id:uint64 amount:(VarUInteger 16) from:MsgAddress
                      = InternalMsgBody;
 burn_notification query_id:uint64 amount:(VarUInteger 16) 
        sender:MsgAddress response_destination:MsgAddress
-       = InternalMsgBody;
-master_request query_id:uint64 amount:(VarUInteger 16) from:MsgAddress
-                     response_address:MsgAddress
-                     forward_ton_amount:(VarUInteger 16)
-                     forward_payload:(Either Cell ^Cell) 
-                     = InternalMsgBody;
-  
+       = InternalMsgBody;  
 ```
 
 `crc32('transfer query_id:uint64 amount:VarUInteger 16 destination:MsgAddress response_destination:MsgAddress custom_payload:Maybe ^Cell forward_ton_amount:VarUInteger 16 forward_payload:Either Cell ^Cell = InternalMsgBody') = 0x8f8a7ea5 & 0x7fffffff = 0xf8a7ea5`
