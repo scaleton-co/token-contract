@@ -122,7 +122,6 @@ int gas_consumption() asm "10000000 PUSHINT"; ;; 0.01 TON
         .store_uint(op::transfer_notification(), 32)
         .store_uint(query_id, 64)
         .store_coins(jetton_amount)
-        .store_slice(jetton_master_address)
         .store_slice(from_address)
         .store_slice(either_forward_payload)
         .end_cell();
