@@ -78,7 +78,7 @@ transfer#f8a7ea5 query_id:uint64 amount:(VarUInteger 16) destination:MsgAddress
     TL-B schema: 
 
 ```
-transfer_notification#1b26d24 query_id:uint64 amount:(VarUInteger 16) jetton_master:MsgAddress
+transfer_notification#1b26d24 query_id:uint64 amount:(VarUInteger 16) 
                               sender:MsgAddress forward_payload:(Either Cell ^Cell)
                               = InternalMsgBody;
 ```
