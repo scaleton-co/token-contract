@@ -206,7 +206,7 @@ transfer query_id:uint64 amount:(VarUInteger 16) destination:MsgAddress
            forward_ton_amount:(VarUInteger 16) forward_payload:(Either Cell ^Cell)
            = InternalMsgBody;
 
-transfer_notification query_id:uint64 amount:(VarUInteger 16) jetton_master:MsgAddress
+transfer_notification query_id:uint64 amount:(VarUInteger 16)
            sender:MsgAddress forward_payload:(Either Cell ^Cell)
            = InternalMsgBody;
 
@@ -230,7 +230,7 @@ burn_notification query_id:uint64 amount:(VarUInteger 16)
 
 `crc32('transfer query_id:uint64 amount:VarUInteger 16 destination:MsgAddress response_destination:MsgAddress custom_payload:Maybe ^Cell forward_ton_amount:VarUInteger 16 forward_payload:Either Cell ^Cell = InternalMsgBody') = 0x8f8a7ea5 & 0x7fffffff = 0xf8a7ea5`
 
-`crc32('transfer_notification query_id:uint64 amount:VarUInteger 16 jetton_master:MsgAddress sender:MsgAddress forward_payload:Either Cell ^Cell = InternalMsgBody') = 0x81b26d24 & 0x7fffffff = 0x1b26d24`
+`crc32('transfer_notification query_id:uint64 amount:VarUInteger 16 sender:MsgAddress forward_payload:Either Cell ^Cell = InternalMsgBody') = 0xf362d09c & 0x7fffffff = 0x7362d09c`
 
 `crc32('excesses query_id:uint64 = InternalMsgBody') = 0x553276db | 0x80000000 = 0xd53276db`
 
