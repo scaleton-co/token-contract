@@ -78,14 +78,12 @@ transfer#f8a7ea5 query_id:uint64 amount:(VarUInteger 16) destination:MsgAddress
     TL-B schema: 
 
 ```
-transfer_notification#1b26d24 query_id:uint64 amount:(VarUInteger 16) 
+transfer_notification#7362d09c query_id:uint64 amount:(VarUInteger 16) 
                               sender:MsgAddress forward_payload:(Either Cell ^Cell)
                               = InternalMsgBody;
 ```
 
     `query_id` should be equal with request's `query_id`.
-
-    `jetton` is address of the Jetton master-contract.
 
     `amount` amount of transferred jettons.
     
@@ -175,9 +173,9 @@ burn#595f07bc query_id:uint64 amount:(VarUInteger 16)
    
     Returns jetton wallet address (MsgAddressInt) for this owner address (MsgAddressInt).
 
-# Implementation
+# Implementation example
 
-https://github.com/ton-blockchain/token-contract/tree/jettons/ft
+https://github.com/ton-blockchain/token-contract/
 
 # TL-B schema
 
